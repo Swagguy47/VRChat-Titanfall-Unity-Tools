@@ -13,6 +13,7 @@ public class NormalConverter : EditorWindow
     public string textureName = "Untitled";
     public int width, height;
     public bool inverseSmoothness;
+    public bool replaceInput = false;
     private string path
     {
         get
@@ -50,12 +51,24 @@ public class NormalConverter : EditorWindow
         GUILayout.Label("Please ensure your normal map texture has \n'Read/Write Enabled' set to true in its import settings");
         GUILayout.Space(10f);
         InputNormal = ShowTexGUI("Input (Yellow) Normal Map:", InputNormal);
-        textureName = InputNormal.name + "_Converted";
+        replaceInput = GUILayout.Toggle(replaceInput, "Replace Input Texture");
+        
         width = InputNormal.width;
         height = InputNormal.height;
         //inverseSmoothness = EditorGUILayout.Toggle("Inverse Smoothness", inverseSmoothness);
 
-        if(GUILayout.Button("Convert Normal Map"))
+        if(replaceInput == false)
+        {
+            textureName = InputNormal.name + "_Converted";
+        }
+        else
+        {
+            textureName = InputNormal.name;
+            GUILayout.Label("Make sure the texture is uncompressed");
+            GUILayout.Space(10f);
+        }
+
+        if (GUILayout.Button("Convert Normal Map"))
         {
 
             PackTextures();
@@ -66,8 +79,16 @@ public class NormalConverter : EditorWindow
 
     private void PackTextures()
     {
+        if(replaceInput == false)
+        {
+            maskMap = new Texture2D(width, height);
+        }
+        else if (replaceInput == true)//just to be safe
+        {
+            maskMap = InputNormal;
+        }
 
-        maskMap = new Texture2D(width, height);
+
         maskMap.SetPixels(ColorArray());
 
         byte[] tex = maskMap.EncodeToPNG();
