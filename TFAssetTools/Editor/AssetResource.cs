@@ -8,11 +8,12 @@ public class AssetResource : EditorWindow
 {
     public Texture TFLogo;
     
-    [MenuItem("Titanfall Asset Tools/Titanfall Asset Resource")]
+    [MenuItem("Titanfall Asset Tools/--Resources--/Titanfall Asset Resource")]
     public static void ShowWindow()
     {
-        EditorWindow.GetWindow(typeof(AssetResource));
-        
+        //EditorWindow.GetWindow(typeof(AssetResource));
+        Application.OpenURL("https://drive.google.com/drive/u/7/folders/1_T8UpjXId-mQMHozFZb7g4kk3mV-L15S");
+
     }
 
     public void OnEnable()

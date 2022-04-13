@@ -14,6 +14,7 @@ public class NormalConverter : EditorWindow
     public int width, height;
     public bool inverseSmoothness;
     public bool replaceInput = false;
+    public bool AutoFix = true;
     private string path
     {
         get
@@ -48,27 +49,38 @@ public class NormalConverter : EditorWindow
         GUILayout.Space(75f);
         GUILayout.Label("Converts yellow normal maps to standard\npurple ones, especially useful for Quest");
         GUILayout.Space(10f);
-        GUILayout.Label("Please ensure your normal map texture has \n'Read/Write Enabled' set to true in its import settings");
-        GUILayout.Space(10f);
         InputNormal = ShowTexGUI("Input (Yellow) Normal Map:", InputNormal);
+        AutoFix = GUILayout.Toggle(AutoFix, "Automatically Setup Input Texture");
         replaceInput = GUILayout.Toggle(replaceInput, "Replace Input Texture");
         
-        width = InputNormal.width;
-        height = InputNormal.height;
+        if(InputNormal != null)
+        {
+            width = InputNormal.width;
+            height = InputNormal.height;
+
+            if (replaceInput == false)
+            {
+                textureName = InputNormal.name + "_Converted";
+            }
+            else
+            {
+                textureName = InputNormal.name;
+                GUILayout.Space(5f);
+                GUILayout.Label("(This will remove input texture compression)");
+                GUILayout.Space(5f);
+            }
+        }
         //inverseSmoothness = EditorGUILayout.Toggle("Inverse Smoothness", inverseSmoothness);
-
-        if(replaceInput == false)
+        if(AutoFix != true)
         {
-            textureName = InputNormal.name + "_Converted";
-        }
-        else
-        {
-            textureName = InputNormal.name;
-            GUILayout.Label("Make sure the texture is uncompressed");
-            GUILayout.Space(10f);
+            if (GUILayout.Button("(Manual) Setup Input Texture") && InputNormal != null)
+            {
+                FixInput();
+                Debug.Log(InputNormal.name + " Now ready for use!");
+            }
         }
 
-        if (GUILayout.Button("Convert Normal Map"))
+        if (GUILayout.Button("Convert Normal Map") && InputNormal != null)
         {
 
             PackTextures();
@@ -79,6 +91,11 @@ public class NormalConverter : EditorWindow
 
     private void PackTextures()
     {
+        if(AutoFix == true)
+        {
+            FixInput();
+        }
+        
         if(replaceInput == false)
         {
             maskMap = new Texture2D(width, height);
@@ -138,6 +155,19 @@ public class NormalConverter : EditorWindow
 
         return cl;
 
+    }
+
+    private void FixInput()
+    {
+        TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal));
+        A.isReadable = true;
+        A.textureType = TextureImporterType.NormalMap;
+        if(replaceInput == true)
+        {
+            A.textureCompression = TextureImporterCompression.Uncompressed;
+        }
+        AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)InputNormal), ImportAssetOptions.ForceUpdate);
+        InputNormal = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal), typeof(Texture2D));
     }
 
     public Texture2D ShowTexGUI(string fieldName,Texture2D texture)
