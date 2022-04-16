@@ -15,6 +15,9 @@ public class NormalConverter : EditorWindow
     public bool inverseSmoothness;
     public bool replaceInput = false;
     public bool AutoFix = true;
+    public bool OutputFix = true;
+    public bool OutputPNG = false;
+    public Texture2D Output; //for post process effects
     private string path
     {
         get
@@ -51,9 +54,11 @@ public class NormalConverter : EditorWindow
         GUILayout.Space(10f);
         InputNormal = ShowTexGUI("Input (Yellow) Normal Map:", InputNormal);
         AutoFix = GUILayout.Toggle(AutoFix, "Automatically Setup Input Texture");
+        OutputFix = GUILayout.Toggle(OutputFix, "Setup Output Texture");
+        OutputPNG = GUILayout.Toggle(OutputPNG, "Encode Output as PNG");
         replaceInput = GUILayout.Toggle(replaceInput, "Replace Input Texture");
-        
-        if(InputNormal != null)
+
+        if (InputNormal != null)
         {
             width = InputNormal.width;
             height = InputNormal.height;
@@ -66,7 +71,7 @@ public class NormalConverter : EditorWindow
             {
                 textureName = InputNormal.name;
                 GUILayout.Space(5f);
-                GUILayout.Label("(This will remove input texture compression)");
+                GUILayout.Label("(This has no undo)");
                 GUILayout.Space(5f);
             }
         }
@@ -87,6 +92,8 @@ public class NormalConverter : EditorWindow
             Debug.Log(path);
 
         }
+
+        GUILayout.Label("Notice:\nHigh input compression settings may\nimpact conversion speed");
     }
 
     private void PackTextures()
@@ -107,18 +114,54 @@ public class NormalConverter : EditorWindow
 
 
         maskMap.SetPixels(ColorArray());
+        
+        if(OutputPNG == true)
+        {
+            byte[] tex = maskMap.EncodeToPNG();
 
-        byte[] tex = maskMap.EncodeToPNG();
+            FileStream stream = new FileStream(path + textureName + ".png", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            BinaryWriter writer = new BinaryWriter(stream);
+            for (int j = 0; j < tex.Length; j++)
+                writer.Write(tex[j]);
 
-        FileStream stream = new FileStream(path + textureName + ".png", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        BinaryWriter writer = new BinaryWriter(stream);
-        for (int j = 0; j < tex.Length; j++)
-            writer.Write(tex[j]);
+            writer.Close();
+            stream.Close();
 
-        writer.Close();
-        stream.Close();
 
-        AssetDatabase.ImportAsset(path + textureName + ".png", ImportAssetOptions.ForceUpdate);
+            AssetDatabase.ImportAsset(path + textureName + ".png", ImportAssetOptions.ForceUpdate);
+            Output = (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName + ".png", typeof(Texture2D));
+
+        }
+        else
+        {
+            byte[] tex = maskMap.EncodeToJPG();
+
+            FileStream stream = new FileStream(path + textureName + ".jpg", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            BinaryWriter writer = new BinaryWriter(stream);
+            for (int j = 0; j < tex.Length; j++)
+                writer.Write(tex[j]);
+
+            writer.Close();
+            stream.Close();
+
+
+            AssetDatabase.ImportAsset(path + textureName + ".jpg", ImportAssetOptions.ForceUpdate);
+            Output = (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName + ".jpg", typeof(Texture2D));
+
+        }
+        if (OutputFix == true)
+        {
+            FixOutput();
+        }
+
+        if (replaceInput == true)//to handle formats different than output
+        {
+            if (InputNormal != Output)
+            {
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(InputNormal));
+            }
+        }
+
         AssetDatabase.Refresh();
 
     }
@@ -161,13 +204,22 @@ public class NormalConverter : EditorWindow
     {
         TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal));
         A.isReadable = true;
-        A.textureType = TextureImporterType.NormalMap;
+        A.textureType = TextureImporterType.Default; //This is nolonger being used as Normal Map to prevent output miscoloration
         if(replaceInput == true)
         {
             A.textureCompression = TextureImporterCompression.Uncompressed;
         }
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)InputNormal), ImportAssetOptions.ForceUpdate);
         InputNormal = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal), typeof(Texture2D));
+    }
+
+    private void FixOutput()
+    {
+        TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)Output));
+        A.isReadable = true;
+        A.textureType = TextureImporterType.NormalMap;
+        AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)Output), ImportAssetOptions.ForceUpdate);
+        Output = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)Output), typeof(Texture2D));
     }
 
     public Texture2D ShowTexGUI(string fieldName,Texture2D texture)
