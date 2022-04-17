@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using System;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -20,6 +22,7 @@ public class AssetResource : EditorWindow
     {
         TFLogo = (Texture)AssetDatabase.LoadAssetAtPath("Assets/TFAssetTools/Editor/TFToolsBanner.png", typeof(Texture));
         Application.OpenURL("https://drive.google.com/drive/u/7/folders/1_T8UpjXId-mQMHozFZb7g4kk3mV-L15S");
+        
     }
 
     private void OnGUI()
