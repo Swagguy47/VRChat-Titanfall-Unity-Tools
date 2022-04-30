@@ -30,6 +30,8 @@ public class R1oTitanSetup : EditorWindow
 
     public bool UseMdlName;
 
+    public bool FixRotation = true;
+
     //Pieces:
     //-------------------------------------
     public GameObject c_spinec;
@@ -112,6 +114,8 @@ public class R1oTitanSetup : EditorWindow
         GUILayout.Space(5f);
         
         UseMdlName = GUILayout.Toggle(UseMdlName, "Use Model Names for Placement");
+
+        FixRotation = GUILayout.Toggle(FixRotation, "Attempt to Fix Rotaiton");
 
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         GUILayout.Space(5f);
@@ -340,9 +344,12 @@ public class R1oTitanSetup : EditorWindow
 
                 //CurrentPiece.transform.parent = RootTransform.Find(Armor.name);
                 CurrentPiece.transform.localPosition = new Vector3(0f,0f,0f);
-                if(CurrentPiece.name.Contains("r_"))//Flips if piece belongs to right side
+                if(FixRotation)
                 {
-                    CurrentPiece.transform.localRotation = new Quaternion(180f, 0f, 0f, 1f);
+                    if (CurrentPiece.name.Contains("r_"))//Flips if piece belongs to right side
+                    {
+                        CurrentPiece.transform.localRotation = new Quaternion(180f, 0f, 0f, 1f);
+                    }
                 }
                 else
                 {
