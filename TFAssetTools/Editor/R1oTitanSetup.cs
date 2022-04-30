@@ -77,7 +77,7 @@ public class R1oTitanSetup : EditorWindow
 
     public void OnGUI()
     {
-
+        //UI
         EditorGUILayout.BeginVertical();
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
@@ -244,7 +244,7 @@ public class R1oTitanSetup : EditorWindow
         EditorGUILayout.EndVertical();
     }
 
-    void PrepList()
+    void PrepList() //Creates the list of transfirst it can find
     {
         ArmorList.Clear();
         
@@ -311,7 +311,7 @@ public class R1oTitanSetup : EditorWindow
         //As you can tell, this is gonna be an unoptimized mess
     }
 
-    void TitanSetup()
+    void TitanSetup()//Does the magic
     {
         ArmorCount = -1;
         foreach(GameObject Armor in ArmorList)
@@ -340,7 +340,7 @@ public class R1oTitanSetup : EditorWindow
 
                 //CurrentPiece.transform.parent = RootTransform.Find(Armor.name);
                 CurrentPiece.transform.localPosition = new Vector3(0f,0f,0f);
-                if(CurrentPiece.name.Contains("r_"))
+                if(CurrentPiece.name.Contains("r_"))//Flips if piece belongs to right side
                 {
                     CurrentPiece.transform.localRotation = new Quaternion(180f, 0f, 0f, 1f);
                 }

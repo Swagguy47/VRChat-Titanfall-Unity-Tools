@@ -31,8 +31,7 @@ public class TitanHatchFix : EditorWindow
 
     private void OnGUI()
     {
-        
-        //GUILayout.Label(TFLogo);
+        //UI
         GUI.DrawTexture(new Rect(10, 10, 200, 60), TFLogo, ScaleMode.ScaleToFit, true, 3.0F);
         GUILayout.Space(75f);
 
@@ -53,7 +52,7 @@ public class TitanHatchFix : EditorWindow
 
             //exampleGO = (GameObject)EditorGUILayout.ObjectField("Example GO", exampleGO, typeof(GameObject), true);
 
-            //fuck it
+            //Everything below this point is after I gave up doing it "the proper way" and go fully unoptimized
             if (Selection.activeTransform != null)
             {
                 SelectedGOName = Selection.activeTransform.gameObject.name;

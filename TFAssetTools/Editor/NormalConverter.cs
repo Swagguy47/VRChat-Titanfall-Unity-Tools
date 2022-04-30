@@ -10,15 +10,17 @@ public class NormalConverter : EditorWindow
     public Texture TFLogo;
 
     public Texture2D InputNormal, maskMap;
-    public string textureName = "Untitled";
+    public string textureName = "Untitled"; //set automatically
     public int width, height;
     public bool inverseSmoothness;
     public bool replaceInput = false;
     public bool AutoFix = true;
     public bool OutputFix = true;
-    public bool OutputPNG = false;
+    public bool OutputPNG = false; //If false, encode jpg
+    public bool CopyCompression = false;
+    public TextureImporterCompression InputCompression; //For copy compression
     public Texture2D Output; //for post process effects
-    private string path
+    private string path //To get input normal asset path
     {
         get
         {
@@ -48,6 +50,7 @@ public class NormalConverter : EditorWindow
 
     public void OnGUI()
     {
+        //UI
         GUI.DrawTexture(new Rect(10, 10, 200, 60), TFLogo, ScaleMode.ScaleToFit, true, 3.0F);
         GUILayout.Space(75f);
         GUILayout.Label("Converts yellow normal maps to standard\npurple ones, especially useful for Quest");
@@ -57,6 +60,10 @@ public class NormalConverter : EditorWindow
         OutputFix = GUILayout.Toggle(OutputFix, "Setup Output Texture");
         OutputPNG = GUILayout.Toggle(OutputPNG, "Encode Output as PNG");
         replaceInput = GUILayout.Toggle(replaceInput, "Replace Input Texture");
+        if(OutputFix && AutoFix)
+        {
+            CopyCompression = GUILayout.Toggle(CopyCompression, "Copy Input Compression");
+        }
 
         if (InputNormal != null)
         {
@@ -96,7 +103,7 @@ public class NormalConverter : EditorWindow
         GUILayout.Label("Notice:\nHigh input compression settings may\nimpact conversion speed");
     }
 
-    private void PackTextures()
+    private void PackTextures()//Start of conversion process
     {
         if(AutoFix == true)
         {
@@ -115,7 +122,7 @@ public class NormalConverter : EditorWindow
 
         maskMap.SetPixels(ColorArray());
         
-        if(OutputPNG == true)
+        if(OutputPNG == true) //PNG
         {
             byte[] tex = maskMap.EncodeToPNG();
 
@@ -134,7 +141,7 @@ public class NormalConverter : EditorWindow
         }
         else
         {
-            byte[] tex = maskMap.EncodeToJPG();
+            byte[] tex = maskMap.EncodeToJPG(); //JPG
 
             FileStream stream = new FileStream(path + textureName + ".jpg", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             BinaryWriter writer = new BinaryWriter(stream);
@@ -165,7 +172,7 @@ public class NormalConverter : EditorWindow
         AssetDatabase.Refresh();
 
     }
-    private Color[] ColorArray()
+    private Color[] ColorArray() //Where the magic happens, fips around the color channels
     {
 
         Color[] cl = new Color[width * height];
@@ -200,29 +207,37 @@ public class NormalConverter : EditorWindow
 
     }
 
-    private void FixInput()
+    private void FixInput() //Does as title suggests
     {
         TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal));
         A.isReadable = true;
         A.textureType = TextureImporterType.Default; //This is nolonger being used as Normal Map to prevent output miscoloration
         if(replaceInput == true)
         {
+            if(CopyCompression == true)
+            {
+                InputCompression = A.textureCompression;
+            }
             A.textureCompression = TextureImporterCompression.Uncompressed;
         }
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)InputNormal), ImportAssetOptions.ForceUpdate);
         InputNormal = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal), typeof(Texture2D));
     }
 
-    private void FixOutput()
+    private void FixOutput() //Does as title suggests
     {
         TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)Output));
         A.isReadable = true;
         A.textureType = TextureImporterType.NormalMap;
+        if(CopyCompression == true)
+        {
+            A.textureCompression = InputCompression;
+        }
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)Output), ImportAssetOptions.ForceUpdate);
         Output = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)Output), typeof(Texture2D));
     }
 
-    public Texture2D ShowTexGUI(string fieldName,Texture2D texture)
+    public Texture2D ShowTexGUI(string fieldName,Texture2D texture) //Honestly forgot what this does
     {
 
         return (Texture2D)EditorGUILayout.ObjectField(fieldName, texture, typeof(Texture2D), false);

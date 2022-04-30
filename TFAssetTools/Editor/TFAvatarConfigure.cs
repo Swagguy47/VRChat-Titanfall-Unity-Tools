@@ -36,16 +36,16 @@ public class TFAvatarConfigure : EditorWindow
 
     private void OnGUI()
     {
-        //GUILayout.Label(TFLogo);
+        //UI
         GUI.DrawTexture(new Rect(10, 10, 200, 60), TFLogo, ScaleMode.ScaleToFit, true, 3.0F);
         GUILayout.Space(75f);
 
-        if (EditorSceneManager.GetActiveScene().name == "Avatar Configuration")
+        if (EditorSceneManager.GetActiveScene().name == "Avatar Configuration")//Checks if configuring avatar
         {
             if(activated == false)
             {
-                //GUILayout.Label("Script Ready!");
-                //GUILayout.Space(5f);
+                //Avatar config UI
+                //Not all are active because not all are implimented as of now
                 GUILayout.Label("Bone Prefix:");
                 BonePrefix = GUILayout.TextField(BonePrefix);
                 GUILayout.Space(5f);
@@ -71,7 +71,7 @@ public class TFAvatarConfigure : EditorWindow
                 
                 if (GUILayout.Button("Auto Fix"))
                 {
-                    if(FixFingerTips == true)
+                    if(FixFingerTips == true) //Rotates the (detected) fingertips based off bone prefix + the most common bone name used by respawn
                     {
                         GameObject.Find(BonePrefix + "l_finIndexC").transform.localRotation = new Quaternion(0f, 0f, 0f, 1f);
                         GameObject.Find(BonePrefix + "l_finMidC").transform.localRotation = new Quaternion(0f, 0f, 0f, 1f);
@@ -125,7 +125,7 @@ public class TFAvatarConfigure : EditorWindow
                     activated = true;
                 }
             }
-            else
+            else //Reset script functionality
             {
                 GUILayout.Label("AVATAR HAS BEEN MODIFIED\n\nverify script functioned correctly\nthen press 'Apply' at the bottom right\n\n(if it doesn't give you the option\n to apply, click on a bone then check)");
                 if (GUILayout.Button("Reset"))
