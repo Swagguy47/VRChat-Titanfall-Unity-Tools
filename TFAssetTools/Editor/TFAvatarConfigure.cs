@@ -19,6 +19,7 @@ public class TFAvatarConfigure : EditorWindow
     public bool RetargetTitanLegs = false;
     public float TitanFingerGrouping = 0.08f;
     public float TitanArmOffset = 0f;
+    public bool BoneLengthZero = true;
 
     public GameObject ModelGO;
     public HumanBone ModelRig;
@@ -61,6 +62,7 @@ public class TFAvatarConfigure : EditorWindow
                 //FixUpperArms = GUILayout.Toggle(FixUpperArms, "Fix Upperarms / Clavicles");
                 //FixUpperChest = GUILayout.Toggle(FixUpperChest, "Retarget Upperchest");
                 //FixHead = GUILayout.Toggle(FixHead, "Fix Stretched Forehead");
+                BoneLengthZero = GUILayout.Toggle(BoneLengthZero, "Check Spine For Length of Zero");
                 FixTitanHands = GUILayout.Toggle(FixTitanHands, "Fix Titan Hands");
                 if(FixTitanHands == true)
                 {
@@ -133,6 +135,15 @@ public class TFAvatarConfigure : EditorWindow
                         //ModelRig = ModelGO.GetComponent<HumanBone>();
                         //ModelRig.boneName HumanBodyBones.Chest HumanBodyBones.LeftMiddleDistal;
                     }
+
+                    if (BoneLengthZero)
+                    {
+                        if (GameObject.Find(BonePrefix + "c_spineA").transform.localPosition.y == 0)
+                        {
+                            GameObject.Find(BonePrefix + "c_spineA").transform.localPosition = new Vector3(0f, 0.0001f, 0f);
+                        }
+                    }
+
                     activated = true;
                 }
             }
