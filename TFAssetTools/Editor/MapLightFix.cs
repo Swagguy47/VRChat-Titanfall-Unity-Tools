@@ -27,6 +27,10 @@ public class MapLightFix : EditorWindow
 
     public bool PrepForBake = true;
 
+    public bool MultiplyIntensity;
+
+    public float IntensityMultiplier = 1f;
+
     [MenuItem("Titanfall Asset Tools/Map Light Fix")]
     public static void ShowWindow()
     {
@@ -47,8 +51,15 @@ public class MapLightFix : EditorWindow
         GUILayout.Space(5f);
         DisableEnvLights = GUILayout.Toggle(DisableEnvLights, "Disable Environment Lights");
         PrepForBake = GUILayout.Toggle(PrepForBake, "Set Light Mode to 'Baked' for all");
+        MultiplyIntensity = GUILayout.Toggle(MultiplyIntensity, "Multiply all light intensities");
+        if (MultiplyIntensity)
+        {
+            IntensityMultiplier = EditorGUILayout.FloatField(IntensityMultiplier);
+        }
+
         LimitSearch = GUILayout.Toggle(LimitSearch, "Limit Search to GameObject Children");
-        if(LimitSearch)
+        
+        if (LimitSearch)
         {
             LookUnderRoot = EditorGUILayout.ObjectField("Only Look Under:", LookUnderRoot, typeof(Transform), true) as Transform;
         }
