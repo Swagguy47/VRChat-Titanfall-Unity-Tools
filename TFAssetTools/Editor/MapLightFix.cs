@@ -31,6 +31,8 @@ public class MapLightFix : EditorWindow
 
     public float IntensityMultiplier = 1f;
 
+    public int Priority;
+
     [MenuItem("Titanfall Asset Tools/Map Light Fix")]
     public static void ShowWindow()
     {
@@ -63,7 +65,16 @@ public class MapLightFix : EditorWindow
         {
             LookUnderRoot = EditorGUILayout.ObjectField("Only Look Under:", LookUnderRoot, typeof(Transform), true) as Transform;
         }
-        if(GUILayout.Button("Fix Lights"))
+
+        string[] options = new string[]
+        {
+                "Auto", "Important", "Not Important",
+        };
+        Priority = EditorGUILayout.Popup("Render Mode: ", Priority, options);
+
+        GUILayout.Space(5f);
+
+        if (GUILayout.Button("Fix Lights"))
         {
             SearchAndFix();
         }
@@ -94,6 +105,7 @@ public class MapLightFix : EditorWindow
             {
                 Debug.Log("Light settings seem within acceptable range for: " + ThisLight.gameObject.name + " it will be skipped");
             }
+            //Seems inefficient but it complains if I do it better ways
             if (DisableEnvLights)
             {
                 if (ThisLight.gameObject.name.Contains("light_environment"))
@@ -107,7 +119,22 @@ public class MapLightFix : EditorWindow
             {
                 ThisLight.lightmapBakeType = LightmapBakeType.Baked;
             }
-            //Seems inefficient but it complains if I do it better ways
+
+            //:P
+            if (Priority == 0)
+            {
+                ThisLight.renderMode = LightRenderMode.Auto;
+            }
+            else if (Priority == 1)
+            {
+                ThisLight.renderMode = LightRenderMode.ForcePixel;
+            }
+            else
+            {
+                ThisLight.renderMode = LightRenderMode.ForceVertex;
+            }
+
+            
         }
     }
 }
