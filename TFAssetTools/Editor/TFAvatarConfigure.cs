@@ -20,6 +20,9 @@ public class TFAvatarConfigure : EditorWindow
     public float TitanFingerGrouping = 0.08f;
     public float TitanArmOffset = 0f;
 
+    public GameObject ModelGO;
+    public HumanBone ModelRig;
+
     bool activated;
     
     [MenuItem("Titanfall Asset Tools/Humanoid Avatar Fixer")]
@@ -49,9 +52,11 @@ public class TFAvatarConfigure : EditorWindow
                 GUILayout.Label("Bone Prefix:");
                 BonePrefix = GUILayout.TextField(BonePrefix);
                 GUILayout.Space(5f);
+                //ModelGO = EditorGUILayout.ObjectField("Model Asset", ModelGO, typeof(GameObject), true) as GameObject;
+                //GUILayout.Space(5f);
                 GUILayout.Label("This Script is still heavily WIP");
                 GUILayout.Space(5f);
-                //FixMiddleFingers = GUILayout.Toggle(FixMiddleFingers, "Fix Swapped Middle Fingers");
+                //FixMiddleFingers = GUILayout.Toggle(FixMiddleFingers, "Fix Swapped Middle Fingers");//Previously Disabled
                 FixFingerTips = GUILayout.Toggle(FixFingerTips, "Fix Rotated Fingertips");
                 //FixUpperArms = GUILayout.Toggle(FixUpperArms, "Fix Upperarms / Clavicles");
                 //FixUpperChest = GUILayout.Toggle(FixUpperChest, "Retarget Upperchest");
@@ -121,6 +126,12 @@ public class TFAvatarConfigure : EditorWindow
                         GameObject.Find(BonePrefix + "l_finThumbA").transform.localPosition = new Vector3(-0.09f, -0.02f, 0.09f);
                         GameObject.Find(BonePrefix + "l_finThumbB").transform.localPosition = new Vector3(-TitanFingerGrouping / 2f, 0f, 0f);
                         GameObject.Find(BonePrefix + "l_finThumbC").transform.localPosition = new Vector3(-TitanFingerGrouping, 0f, 0f);
+                    }
+
+                    if(FixMiddleFingers)
+                    {
+                        //ModelRig = ModelGO.GetComponent<HumanBone>();
+                        //ModelRig.boneName HumanBodyBones.Chest HumanBodyBones.LeftMiddleDistal;
                     }
                     activated = true;
                 }
