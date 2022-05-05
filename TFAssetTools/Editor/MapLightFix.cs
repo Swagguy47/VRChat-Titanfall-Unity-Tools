@@ -49,7 +49,7 @@ public class MapLightFix : EditorWindow
     {
         GUI.DrawTexture(new Rect(10, 10, 200, 60), TFLogo, ScaleMode.ScaleToFit, true, 3.0F);
         GUILayout.Space(75f);
-        GUILayout.Label("If map lights have broken lights,\nthis tool should fix them.");
+        GUILayout.Label("If your map rip has broken lights,\nthis tool should fix them.");
         GUILayout.Space(5f);
         DisableEnvLights = GUILayout.Toggle(DisableEnvLights, "Disable Environment Lights");
         PrepForBake = GUILayout.Toggle(PrepForBake, "Set Light Mode to 'Baked' for all");
@@ -118,6 +118,12 @@ public class MapLightFix : EditorWindow
             if (PrepForBake)
             {
                 ThisLight.lightmapBakeType = LightmapBakeType.Baked;
+            }
+
+            //I forgor
+            if (MultiplyIntensity)
+            {
+                ThisLight.intensity *= IntensityMultiplier; 
             }
 
             //:P
