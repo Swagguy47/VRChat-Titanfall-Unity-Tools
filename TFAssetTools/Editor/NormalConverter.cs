@@ -20,6 +20,13 @@ public class NormalConverter : EditorWindow
     public bool CopyCompression = false;
     public TextureImporterCompression InputCompression; //For copy compression
     public Texture2D Output; //for post process effects
+
+    //Batch params
+    public int selected; //Input Method
+    public Texture2D[] InputTextures;
+    public Material[] InputMaterials;
+    public Vector2 scrollPos;
+
     private string path //To get input normal asset path
     {
         get
@@ -50,12 +57,61 @@ public class NormalConverter : EditorWindow
 
     public void OnGUI()
     {
+        if (selected != 0) //scrolling for batch
+        {
+            EditorGUILayout.BeginVertical();
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        }
+        
         //UI
         GUI.DrawTexture(new Rect(10, 10, 200, 60), TFLogo, ScaleMode.ScaleToFit, true, 3.0F);
         GUILayout.Space(75f);
         GUILayout.Label("Converts yellow normal maps to standard\npurple ones, especially useful for Quest");
         GUILayout.Space(10f);
-        InputNormal = ShowTexGUI("Input (Yellow) Normal Map:", InputNormal);
+
+        string[] options = new string[]
+           {
+                "Individual Texture", "Multiple Textures", "Multiple Materials",
+           };
+
+        //BATCH SETTING
+        selected = EditorGUILayout.Popup("Method:", selected, options);
+
+        //Methods:
+        if (selected == 0) //Individual texture
+        {
+            InputNormal = ShowTexGUI("Input (Yellow) Normal Map:", InputNormal);
+        }
+        else if (selected == 1) //Multiple textures
+        {
+            GUILayout.Space(5f);
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            //Array field
+            ScriptableObject scriptableObj = this;
+            SerializedObject serialObj = new SerializedObject(scriptableObj);
+            SerializedProperty serialTex = serialObj.FindProperty("InputTextures");
+
+            EditorGUILayout.PropertyField(serialTex, true);
+            serialObj.ApplyModifiedProperties();
+            //-----
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            GUILayout.Space(5f);
+        }
+        else if (selected == 2) //Multiple materials
+        {
+            GUILayout.Space(5f);
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            //Array field
+            ScriptableObject scriptableObj = this;
+            SerializedObject serialObj = new SerializedObject(scriptableObj);
+            SerializedProperty serialMat = serialObj.FindProperty("InputMaterials");
+
+            EditorGUILayout.PropertyField(serialMat, true);
+            serialObj.ApplyModifiedProperties();
+            //-----
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            GUILayout.Space(5f);
+        }
         AutoFix = GUILayout.Toggle(AutoFix, "Automatically Setup Input Texture");
         OutputFix = GUILayout.Toggle(OutputFix, "Setup Output Texture");
         OutputPNG = GUILayout.Toggle(OutputPNG, "Encode Output as PNG");
@@ -65,6 +121,56 @@ public class NormalConverter : EditorWindow
             CopyCompression = GUILayout.Toggle(CopyCompression, "Copy Input Compression");
         }
 
+
+        //inverseSmoothness = EditorGUILayout.Toggle("Inverse Smoothness", inverseSmoothness);
+        if(AutoFix != true)
+        {
+            if (GUILayout.Button("(Manual) Setup Input Texture") && InputNormal != null)
+            {
+                FixInput();
+                Debug.Log(InputNormal.name + " Now ready for use!");
+            }
+        }
+        if (selected == 0) //Regular conversion & batch conversion buttons
+        {
+            if (GUILayout.Button("Convert Normal Map") && InputNormal != null)
+            {
+                PackTextures();
+                Debug.Log(path);
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Batch Convert Normal Maps"))
+            {
+                Debug.Log("Batch conversion in process");
+                BatchConvert();
+            }
+        }
+        
+        if (replaceInput)
+        {
+            GUILayout.Space(5f);
+            GUILayout.Label("This has no undo");
+            GUILayout.Space(5f);
+        }
+
+        GUILayout.Label("Notice:\nHigh input compression settings may\nimpact conversion speed");
+
+        if (selected != 0)
+        {
+            GUILayout.Space(5f);
+            GUILayout.Label("Tip:\nSelect all assets you want to batch\nconvert and drag them over the array label");
+            
+            //Batch scroll view
+            GUILayout.Space(5f);
+            EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
+        }
+    }
+
+    private void PackTextures()//Start of conversion process
+    {
         if (InputNormal != null)
         {
             width = InputNormal.width;
@@ -77,35 +183,11 @@ public class NormalConverter : EditorWindow
             else
             {
                 textureName = InputNormal.name;
-                GUILayout.Space(5f);
-                GUILayout.Label("(This has no undo)");
-                GUILayout.Space(5f);
-            }
-        }
-        //inverseSmoothness = EditorGUILayout.Toggle("Inverse Smoothness", inverseSmoothness);
-        if(AutoFix != true)
-        {
-            if (GUILayout.Button("(Manual) Setup Input Texture") && InputNormal != null)
-            {
-                FixInput();
-                Debug.Log(InputNormal.name + " Now ready for use!");
             }
         }
 
-        if (GUILayout.Button("Convert Normal Map") && InputNormal != null)
-        {
 
-            PackTextures();
-            Debug.Log(path);
-
-        }
-
-        GUILayout.Label("Notice:\nHigh input compression settings may\nimpact conversion speed");
-    }
-
-    private void PackTextures()//Start of conversion process
-    {
-        if(AutoFix == true)
+        if (AutoFix == true)
         {
             FixInput();
         }
@@ -242,6 +324,29 @@ public class NormalConverter : EditorWindow
 
         return (Texture2D)EditorGUILayout.ObjectField(fieldName, texture, typeof(Texture2D), false);
 
+    }
+
+
+    public void BatchConvert()
+    {
+        if (selected == 1) //batch textures
+        {
+            foreach (Texture2D CurrentTex in InputTextures)
+            {
+                InputNormal = CurrentTex;
+                PackTextures();
+            }
+            Debug.Log("Batch Conversion FINISHED!");
+        }
+        else if (selected == 2) //batch materials
+        {
+            foreach (Material CurrentMat in InputMaterials)
+            {
+                InputNormal = CurrentMat.GetTexture("_BumpMap") as Texture2D;
+                PackTextures();
+            }
+            Debug.Log("Batch Conversion FINISHED!");
+        }
     }
 
 }
