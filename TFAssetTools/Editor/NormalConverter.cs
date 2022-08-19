@@ -268,7 +268,7 @@ public class NormalConverter : EditorWindow
             else
                 cl[j].r = 1;
             if (InputNormal != null)
-                cl[j].g = InputNormal.GetPixel(j % width, j / width).g;
+                cl[j].g = 1 - InputNormal.GetPixel(j % width, j / width).g;
             else
                 cl[j].g = 1;
             if (InputNormal != null)
