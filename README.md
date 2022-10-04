@@ -8,9 +8,6 @@ A small WIP toolset for Unity that helps improve and automate the workflow of ma
 https://user-images.githubusercontent.com/67041649/162865962-9a0db079-918a-4b92-957a-c2f54999ef43.mp4
 
 
-
-
-
 https://user-images.githubusercontent.com/67041649/163099638-deb03d32-c088-41fd-b8c8-b49955a7c97b.mp4
 
 
@@ -21,7 +18,7 @@ https://user-images.githubusercontent.com/67041649/163099638-deb03d32-c088-41fd-
 https://user-images.githubusercontent.com/67041649/162865967-0d91922c-2565-462f-a6c6-7b0a71b626af.mp4
 
 
-![CamoGenDemo](https://user-images.githubusercontent.com/67041649/193712330-05fb66f7-d19c-467b-995a-49ef65d55908.jpg)
+![CamoGenDemo](https://user-images.githubusercontent.com/67041649/193712416-7f4d1ca6-3fa0-488e-a477-6f6e98ac333f.jpg)
 
 
 https://user-images.githubusercontent.com/67041649/163736424-11214bdf-2990-4104-980d-41caa280917c.mp4
