@@ -24,7 +24,7 @@ public class CamoGenerator : EditorWindow
     public Texture2D[] InputMasks; //Mask
     public Texture2D[] InputCamos; //Camos
     public int CurrentTexture;
-    public int Progress;
+    public float Progress;
     public Vector2 scrollPos;
 
     private string path //To get input normal asset path
@@ -47,7 +47,6 @@ public class CamoGenerator : EditorWindow
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(CamoGenerator));
-
     }
 
     private void OnEnable()
@@ -114,7 +113,7 @@ public class CamoGenerator : EditorWindow
             //Debug.Log(path);
         }
 
-        GUILayout.Label("\nThis may take awhile if you inputted a lot\n of textures, so sit back and get cozy\n\n(The console will display when it has finished)\n\nYou will be generating: " + InputCamos.Length * InputSkin31Albedos.Length + " new textures");
+        GUILayout.Label("\nThis may take awhile if you inputted a lot\n of textures, so sit back and get cozy\n\n(The console will display when it has finished)\n\n");
 
         EditorGUILayout.EndScrollView();
     }
@@ -272,9 +271,12 @@ public class CamoGenerator : EditorWindow
 
                 //Progress logs
                 Progress--;
-                Debug.Log("Processing Camos... Outputted:" + Progress + "/" + InputCamos.Length * InputSkin31Albedos.Length + "\nCurrent Texture: " + InputNormal.name + " With Camo: " + InputCamo.name);
+
+                EditorUtility.DisplayProgressBar("Processing Camos...", "Outputted:" + (Mathf.Abs(Progress - (InputCamos.Length * InputSkin31Albedos.Length))) + "/" + InputCamos.Length * InputSkin31Albedos.Length + " Current Texture: " + InputNormal.name, (Mathf.Abs(Progress - (InputCamos.Length * InputSkin31Albedos.Length)) / (InputCamos.Length * InputSkin31Albedos.Length)));
+                //Debug.Log("Processing Camos... Outputted:" + Progress + "/" + InputCamos.Length * InputSkin31Albedos.Length + "\nCurrent Texture: " + InputNormal.name + " With Camo: " + InputCamo.name);
             }
         }
+        EditorUtility.ClearProgressBar();
         Debug.Log("<color=lime>PROCESSING COMPLETE!</color> <color=white>" + (InputCamos.Length * InputSkin31Albedos.Length) + " TEXTURES FINALIZED!</color>");
     }
 
