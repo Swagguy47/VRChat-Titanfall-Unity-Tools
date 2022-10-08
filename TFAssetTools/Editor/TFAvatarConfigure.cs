@@ -64,7 +64,10 @@ public class TFAvatarConfigure : EditorWindow
                 //FixHead = GUILayout.Toggle(FixHead, "Fix Stretched Forehead");
                 BoneLengthZero = GUILayout.Toggle(BoneLengthZero, "Check Spine For Length of Zero");
                 FixTitanHands = GUILayout.Toggle(FixTitanHands, "Fix Titan Hands");
-                if(FixTitanHands == true)
+
+                
+                
+                if (FixTitanHands == true)
                 {
                     //GUILayout.HorizontalSlider(TitanFingerGrouping, 0.5f, 1f);
                     GUILayout.Label("Finger Grouping: (Recommended 0.08)");
