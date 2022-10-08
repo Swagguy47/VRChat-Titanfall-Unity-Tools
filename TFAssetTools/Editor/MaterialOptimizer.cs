@@ -253,7 +253,7 @@ public class MaterialOptimizer : EditorWindow
         maskMap = InputNormal;
 
         //Chooses if to convert map to jpeg depending on map type and whether albedo is transparent if its an albedo
-        if ((NowAlbedo && MaterialsToCompress[Mathf.RoundToInt(Progress)].renderQueue >= 2450 && JpegAlbedos) || (!NowAlbedo && JpegMaps))
+        if ((NowAlbedo && MaterialsToCompress[Mathf.RoundToInt(Progress)].renderQueue < 2450 && JpegAlbedos) || (!NowAlbedo && JpegMaps))
         {
             CompressAsJpeg();
         }
