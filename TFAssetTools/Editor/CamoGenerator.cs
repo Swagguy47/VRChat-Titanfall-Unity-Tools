@@ -10,11 +10,11 @@ public class CamoGenerator : EditorWindow
     public Texture TFLogo;
     public Texture HelpImg;
 
-    public Texture2D InputNormal, maskMap, InputMask, InputCamo;
+    public Texture2D InputNormal, maskMap, InputMask, InputCamo, Overlay;
     public string textureName = "Untitled"; //set automatically
     public int width, height, CamoWidth, CamoHeight, CamoTileX, CamoTileY;
     public bool inverseSmoothness;
-    public bool OutputPNG = false; //If false, encode jpg
+    public bool OutputPNG = true; //If false, encode jpg
     public TextureImporterCompression InputCompression; //For copy compression
     public Texture2D Output; //for post process effects
 
@@ -26,6 +26,8 @@ public class CamoGenerator : EditorWindow
     public int CurrentTexture;
     public float Progress;
     public Vector2 scrollPos;
+
+    public int JpegQuality = 80;
 
     private string path //To get input normal asset path
     {
@@ -106,6 +108,13 @@ public class CamoGenerator : EditorWindow
 
         OutputPNG = GUILayout.Toggle(OutputPNG, "Encode Output as PNG");
 
+        if (!OutputPNG)
+        {
+            GUILayout.Label("Jpeg Quality Level (" + JpegQuality + " / 100)");
+            JpegQuality = Mathf.RoundToInt(GUILayout.HorizontalSlider(JpegQuality, 0, 100));
+            GUILayout.Space(15f);
+        }
+
         //Start button
         if (GUILayout.Button("Generate") && InputSkin31Albedos.Length == InputMasks.Length && InputCamos.Length > 0)
         {
@@ -146,7 +155,7 @@ public class CamoGenerator : EditorWindow
             AssetDatabase.CreateFolder(path.Substring(0, path.Length - 1), "Camos");
         }
 
-        if (OutputPNG == true) //PNG
+        if (OutputPNG) //PNG
         {
             byte[] tex = maskMap.EncodeToPNG();
 
@@ -164,7 +173,7 @@ public class CamoGenerator : EditorWindow
         }
         else
         {
-            byte[] tex = maskMap.EncodeToJPG(); //JPG
+            byte[] tex = maskMap.EncodeToJPG(JpegQuality); //JPG
 
             FileStream stream = new FileStream(path + textureName + ".jpg", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             BinaryWriter writer = new BinaryWriter(stream);

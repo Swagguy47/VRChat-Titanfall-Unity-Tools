@@ -27,6 +27,8 @@ public class NormalConverter : EditorWindow
     public Material[] InputMaterials;
     public Vector2 scrollPos;
 
+    public float Progress;
+
     private string path //To get input normal asset path
     {
         get
@@ -329,13 +331,17 @@ public class NormalConverter : EditorWindow
 
     public void BatchConvert()
     {
+        Progress = 0;
         if (selected == 1) //batch textures
         {
             foreach (Texture2D CurrentTex in InputTextures)
             {
                 InputNormal = CurrentTex;
                 PackTextures();
+                Progress++;
+                EditorUtility.DisplayProgressBar("Batch Converting Normal Maps", "Progress: ( " + Progress + " / " + InputTextures.Length + " )", Progress / InputTextures.Length);
             }
+            EditorUtility.ClearProgressBar();
             Debug.Log("Batch Conversion FINISHED!");
         }
         else if (selected == 2) //batch materials
@@ -344,8 +350,11 @@ public class NormalConverter : EditorWindow
             {
                 InputNormal = CurrentMat.GetTexture("_BumpMap") as Texture2D;
                 PackTextures();
+                Progress++;
+                EditorUtility.DisplayProgressBar("Batch Converting Normal Maps", "Progress: ( " + Progress + " / " + InputMaterials.Length + " )", Progress / InputMaterials.Length);
             }
             Debug.Log("Batch Conversion FINISHED!");
+            EditorUtility.ClearProgressBar();
         }
     }
 
