@@ -4,6 +4,9 @@ A small WIP toolset for Unity that helps improve and automate the workflow of ma
 
 ![AC pink zone](https://user-images.githubusercontent.com/67041649/166842092-fb9ab7ab-71a7-4e6f-8c6f-6d648cb16d21.jpg)
 
+Guide:
+https://youtu.be/XUO1OT2Eres
+
 
 https://user-images.githubusercontent.com/67041649/162865962-9a0db079-918a-4b92-957a-c2f54999ef43.mp4
 
