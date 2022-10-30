@@ -9,7 +9,7 @@ using UnityEditor.SceneManagement;
 public class ZVERSION : EditorWindow
 {
     //Remember to change this value every update now on
-    [MenuItem("Titanfall Asset Tools/--Resources--/- Current Version: 1.8 -")]
+    [MenuItem("Titanfall Asset Tools/--Resources--/- Current Version: 2.0 -")]
     public static void ShowWindow()
     {
     }
