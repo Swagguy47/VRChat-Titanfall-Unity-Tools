@@ -30,6 +30,9 @@ public class MatSetup : EditorWindow
     private bool skipNormal;
     private bool skipSpecular;
     private bool skipEmission;
+    private bool skipAO;
+    private bool skipGloss;
+    private bool skipCavity;
 
     private float OverrideNormal = 1;
     [Range(0,1)] private float OverrideSpecular = 0.6f;
@@ -62,7 +65,7 @@ public class MatSetup : EditorWindow
         //Shader Method
         string[] options = new string[]
            {
-                "Standard", "Standard (Specular Setup)",
+                "Standard", "Standard (Specular Setup)", "Titanfall 2 Standard"
            };
 
         //BATCH SETTING
@@ -96,7 +99,13 @@ public class MatSetup : EditorWindow
         skipAlbedo = GUILayout.Toggle(skipAlbedo, "Skip Albedo maps");
         skipNormal = GUILayout.Toggle(skipNormal, "Skip Normal maps");
         skipSpecular = GUILayout.Toggle(skipSpecular, "Skip Specular maps");
+        if (Shader == 2) //Titanfall shader
+        {
+            skipGloss = GUILayout.Toggle(skipGloss, "Skip Gloss maps");
+            skipCavity = GUILayout.Toggle(skipCavity, "Skip Cavity maps");
+        }
         skipEmission = GUILayout.Toggle(skipEmission, "Skip Emission maps");
+        skipAO = GUILayout.Toggle(skipAO, "Skip Occlusion maps");
 
         GUILayout.Label("Normal Intensity:");
         OverrideNormal = EditorGUILayout.FloatField(OverrideNormal);
@@ -162,7 +171,21 @@ public class MatSetup : EditorWindow
                         CurrentMat.SetTexture("_MetallicGlossMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_spc" + FileType, typeof(Texture)));
                     }
                 }
-
+                //Occlusion
+                if (!skipAO && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ao" + FileType, typeof(Texture)) != null)
+                {
+                    CurrentMat.SetTexture("_OcclusionMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ao" + FileType, typeof(Texture)));
+                }
+                //Cavity (TF2 Shader Only)
+                if (Shader == 2 && !skipCavity && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_cav" + FileType, typeof(Texture)) != null)
+                {
+                    CurrentMat.SetTexture("_Cav", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_cav" + FileType, typeof(Texture)));
+                }
+                //Gloss (TF2 Shader Only)
+                if (Shader == 2 && !skipCavity && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_gls" + FileType, typeof(Texture)) != null)
+                {
+                    CurrentMat.SetTexture("_GlossMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_gls" + FileType, typeof(Texture)));
+                }
                 //Emission
                 if (!skipEmission && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ilm" + FileType, typeof(Texture)) != null)
                 {
