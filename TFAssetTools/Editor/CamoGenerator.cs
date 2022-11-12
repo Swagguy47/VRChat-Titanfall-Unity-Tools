@@ -36,6 +36,9 @@ public class CamoGenerator : EditorWindow
 
     public int JpegQuality = 80;
 
+    public bool MakeMats;
+    public Material CurrentMat;
+
     private string path //To get input normal asset path
     {
         get
@@ -138,6 +141,7 @@ public class CamoGenerator : EditorWindow
             JpegQuality = EditorGUILayout.IntSlider(JpegQuality, 0, 100);
             GUILayout.Space(15f);
         }
+        MakeMats = GUILayout.Toggle(MakeMats, "Generate Materials");
 
         //CrunchCompressOutput = GUILayout.Toggle(CrunchCompressOutput, "Crunch Compress Output");
 
@@ -238,6 +242,43 @@ public class CamoGenerator : EditorWindow
         }
 
         //FixOutput();
+
+        //Generating Materials
+        if (MakeMats)
+        {
+            var material = new Material(Shader.Find("Standard"));
+            AssetDatabase.CreateAsset(material, path + "Camos/" + textureName + "_mat" + ".mat");
+            CurrentMat = (Material)AssetDatabase.LoadAssetAtPath(path + "Camos/" + textureName + "_mat" + ".mat", typeof(Material));
+            CurrentMat.mainTexture = Output;
+
+            //Attempts to find extra maps, assuming they use a consistent naming scheme
+            if (AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_nml" + ".png", typeof(Texture2D)) != null)
+            {
+                CurrentMat.SetTexture("_BumpMap", (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_nml" + ".png", typeof(Texture2D)));
+            }
+            else if (AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_nml" + ".jpg", typeof(Texture2D)) != null)
+            {
+                CurrentMat.SetTexture("_BumpMap", (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_nml" + ".jpg", typeof(Texture2D)));
+            }
+
+            if (AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_spc" + ".png", typeof(Texture2D)) != null)
+            {
+                CurrentMat.SetTexture("_SpecGlossMap", (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_spc" + ".png", typeof(Texture2D)));
+            }
+            else if (AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_spc" + ".jpg", typeof(Texture2D)) != null)
+            {
+                CurrentMat.SetTexture("_SpecGlossMap", (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_spc" + ".jpg", typeof(Texture2D)));
+            }
+
+            if (AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_ilm" + ".png", typeof(Texture2D)) != null)
+            {
+                CurrentMat.SetTexture("_EmissionMap", (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_ilm" + ".png", typeof(Texture2D)));
+            }
+            else if(AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_ilm" + ".jpg", typeof(Texture2D)) != null)
+            {
+                CurrentMat.SetTexture("_EmissionMap", (Texture2D)AssetDatabase.LoadAssetAtPath(path + textureName.Substring(0, textureName.Length - 25) + "_ilm" + ".jpg", typeof(Texture2D)));
+            }
+        }
 
         AssetDatabase.Refresh();
 

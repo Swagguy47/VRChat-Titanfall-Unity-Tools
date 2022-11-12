@@ -8,18 +8,18 @@
 
         [Header(___________________________________________________________________________________________________________________________)][Header(Normal Map)][Space]_BumpMap("_Nml", 2D) = "bump" {}
 
-        [Header(___________________________________________________________________________________________________________________________)][Header(Specular Map)][Space]_SpecMap("_Spec", 2D) = "black" {}
-        _SpecularColor("SpecularInt", Color) = (0.8, 0.8, 0.8)
+        [Header(___________________________________________________________________________________________________________________________)][Header(Specular Map)][Space]_SpecGlossMap("_Spec", 2D) = "black" {}
+        _SpecularColor("SpecularInt", Color) = (1, 1, 1)
 
         [Header(___________________________________________________________________________________________________________________________)][Header(Gloss Map)][Space]_GlossMap("_Gls/_Exp", 2D) = "white" {}
         _Glossiness("Smoothness", Float) = 0.75
         
 
-        [Header(___________________________________________________________________________________________________________________________)][Header(Emission Glow)][Space]_Emission("_Ilm", 2D) = "black" {}
+        [Header(___________________________________________________________________________________________________________________________)][Header(Emission Glow)][Space]_EmissionMap("_Ilm", 2D) = "black" {}
         _EmissionColor("EmissionColor", Color) = (1,1,1,1)
         _EmissionInt("EmissionInt", Float) = 1
 
-        [Header(___________________________________________________________________________________________________________________________)][Header(Ambient Occlusion Map)][Space]_AO("_Ao", 2D) = "white" {}
+        [Header(___________________________________________________________________________________________________________________________)][Header(Ambient Occlusion Map)][Space]_OcclusionMap("_Ao", 2D) = "white" {}
         _AOInt("OcclusionInt", Range(0, 1)) = 1
 
         [Header(___________________________________________________________________________________________________________________________)][Header(Cavity Map)][Space]_Cav("_Cav", 2D) = "white" {}
@@ -51,10 +51,10 @@
 
         sampler2D _MainTex;
         sampler2D _BumpMap;
-        sampler2D _SpecMap;
+        sampler2D _SpecGlossMap;
         sampler2D _GlossMap;
-        sampler2D _Emission;
-        sampler2D _AO;
+        sampler2D _EmissionMap;
+        sampler2D _OcclusionMap;
         sampler2D _Cav;
         sampler2D _Opacity;
         sampler2D _CamoTex;
@@ -65,10 +65,10 @@
         {
             float2 uv_MainTex;
             float2 uv_BumpMap;
-            float2 uv_SpecMap;
+            float2 uv_SpecGlossMap;
             float2 uv_GlossMap;
-            float2 uv_Emission;
-            float2 uv_AO;
+            float2 uv_EmissionMap;
+            float2 uv_OcclusionMap;
             float2 uv_Cav;
             float2 uv_Opacity;
             float2 uv_CamoTex;
@@ -93,15 +93,15 @@
             // Maintex + camo
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color + (tex2D (_CamoTex, IN.uv_CamoTex * 8) * tex2D (_CamoMsk, IN.uv_CamoMsk));
             // Camo'd Maintex + AO & Cav
-            o.Albedo = c.rgb * tex2D(_AO, IN.uv_AO) * tex2D(_Cav, IN.uv_Cav);
-            o.Occlusion = tex2D(_AO, IN.uv_AO) * tex2D(_Cav, IN.uv_Cav) * _AOInt;
+            o.Albedo = c.rgb * tex2D(_Cav, IN.uv_Cav);
+            o.Occlusion = tex2D(_OcclusionMap, IN.uv_OcclusionMap) * tex2D(_Cav, IN.uv_Cav) * _AOInt;
             // Specular Jazz
-            o.Specular = tex2D(_SpecMap, IN.uv_SpecMap) * _SpecularColor;
+            o.Specular = tex2D(_SpecGlossMap, IN.uv_SpecGlossMap) * _SpecularColor;
             o.Smoothness = _Glossiness * tex2D(_GlossMap, IN.uv_GlossMap);
             // Normal Jazz
             o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_BumpMap)) + (UnpackNormal(tex2D(_CamoNml, IN.uv_CamoNml * 8)) * (tex2D(_CamoMsk, IN.uv_CamoMsk)));
             //Illum
-            o.Emission = tex2D(_Emission, IN.uv_Emission) * _EmissionColor * _EmissionInt;
+            o.Emission = tex2D(_EmissionMap, IN.uv_EmissionMap) * _EmissionColor * _EmissionInt;
             //Opacity
             #if !defined(_ALPHABLEND_ON)
             o.Alpha = 1.0;
