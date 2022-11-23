@@ -50,7 +50,7 @@ public class MaterialOptimizer : EditorWindow
     }
 
 
-    [MenuItem("Titanfall Asset Tools/Material Optimizer")]
+    [MenuItem("Titanfall Asset Tools/Materials/Material Optimizer")]
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(MaterialOptimizer));

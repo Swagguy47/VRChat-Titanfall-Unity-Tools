@@ -29,6 +29,8 @@
         _CamoMsk("_Msk", 2D) = "white" {}
 
         [Header(___________________________________________________________________________________________________________________________)][Header(Extras)][Space][Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 2
+        
+        _Offset("Offset", float) = 0
         //[Header(___________________________________________________________________________________________________________________________)][Header(Opacity Map)]_Opacity("_Opa", 2D) = "black" {}
         //[Toggle] _ZWrite("ZWrite", Float) = 1
     }
@@ -41,6 +43,8 @@
         LOD 200
 
         //ZWrite[_ZWrite]
+
+        Offset[_Offset],[_Offset]
         
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types

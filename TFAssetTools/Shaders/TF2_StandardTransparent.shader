@@ -29,7 +29,9 @@
         _CamoMsk("_Msk", 2D) = "white" {}
 
         [Header(___________________________________________________________________________________________________________________________)][Header(Opacity Map)]_Opacity("_Opa", 2D) = "white" {}
+
         [Toggle] _ZWrite("ZWrite", Float) = 1
+        _Offset("Offset", float) = 0
 
         [Header(___________________________________________________________________________________________________________________________)][Header(Extras)][Space][Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 2
     }
@@ -45,6 +47,8 @@
 
         ZWrite[_ZWrite]
         
+        Offset[_Offset],[_Offset]
+
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
         #pragma surface surf StandardSpecular fullforwardshadows alpha
@@ -99,8 +103,8 @@
             o.Albedo = c.rgb * tex2D(_Cav, IN.uv_Cav);
             o.Occlusion = tex2D(_OcclusionMap, IN.uv_OcclusionMap) * tex2D(_Cav, IN.uv_Cav) * _AOInt;
             // Specular Jazz
-            o.Specular = tex2D(_SpecGlossMap, IN.uv_SpecGlossMap) * _SpecularColor;
-            o.Smoothness = _Glossiness * tex2D(_GlossMap, IN.uv_GlossMap);
+            o.Specular = tex2D(_SpecGlossMap, IN.uv_SpecGlossMap) * _SpecularColor * tex2D(_MainTex, IN.uv_MainTex).a;
+            o.Smoothness = _Glossiness * tex2D(_GlossMap, IN.uv_GlossMap) * tex2D(_MainTex, IN.uv_MainTex).a;
             // Normal Jazz
             o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_BumpMap)) + (UnpackNormal(tex2D(_CamoNml, IN.uv_CamoNml * 8)) * (tex2D(_CamoMsk, IN.uv_CamoMsk)));
             //Illum

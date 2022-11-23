@@ -55,7 +55,7 @@ public class CamoGenerator : EditorWindow
         }
     }
     
-    [MenuItem("Titanfall Asset Tools/Camo Texture Generator")]
+    [MenuItem("Titanfall Asset Tools/Camos/Camo Texture Generator")]
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(CamoGenerator));
