@@ -348,8 +348,11 @@ public class NormalConverter : EditorWindow
         {
             foreach (Material CurrentMat in InputMaterials)
             {
-                InputNormal = CurrentMat.GetTexture("_BumpMap") as Texture2D;
-                PackTextures();
+                if (CurrentMat.GetTexture("_BumpMap") != null) //stall fix
+                {
+                    InputNormal = CurrentMat.GetTexture("_BumpMap") as Texture2D;
+                    PackTextures();
+                }
                 Progress++;
                 EditorUtility.DisplayProgressBar("Batch Converting Normal Maps", "Progress: ( " + Progress + " / " + InputMaterials.Length + " )", Progress / InputMaterials.Length);
             }

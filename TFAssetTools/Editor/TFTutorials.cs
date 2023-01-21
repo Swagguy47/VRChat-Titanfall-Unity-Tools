@@ -29,6 +29,11 @@ public class TFTutorials : EditorWindow
         GUILayout.Space(75f);
         GUILayout.Label("Potentially useful tutorials for the toolset, the asset resource,\nor just making Titanfall VRChat content in general.");
         GUILayout.Space(15f);
+        if (GUILayout.Button("(Video): 'Titanfall Asset Tools Walkthrough'"))
+        {
+            Application.OpenURL("https://youtu.be/XUO1OT2Eres");
+        }
+        GUILayout.Space(15f);
         if (GUILayout.Button("(Video): 'Making Your Own Titanfall Avatar'"))
         {
             Application.OpenURL("https://youtu.be/jOdDULz0UCw");

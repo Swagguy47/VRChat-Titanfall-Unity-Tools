@@ -6,6 +6,7 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using static PlasticPipe.Server.MonitorStats;
 
 //This is a modified version of my simplified Halo 2 Anniversary Material Converter tool for Titanfall usage
 public class MatSetup : EditorWindow
@@ -158,182 +159,110 @@ public class MatSetup : EditorWindow
     {
         Debug.Log("Setting up materials...");
         Progress = 0;
-        foreach (Material CurrentMat in InputMaterials)
+
+        foreach (Material Mat in InputMaterials)
         {
-            if (ChangeTex)
+            if (ChangeTex) //Texture Changing
             {
-                //Albedo
-                if (!skipAlbedo && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_col" + FileType, typeof(Texture)) != null)
+                //Universal Textures
+                SetTexture(Mat, "_col", "_MainTex", skipAlbedo); //Albedo
+                SetTexture(Mat, "_nml", "_BumpMap", skipNormal); //Normal
+                SetTexture(Mat, "_ao", "_OcclusionMap", skipAO); //AO
+                SetTexture(Mat, "_ilm", "_EmissionMap", skipEmission); //EmisisonTex
+                Mat.EnableKeyword("_EMISSION"); //Enables Emission
+
+                if (Shader == 0) //Standard
                 {
-                    CurrentMat.mainTexture = (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_col" + FileType, typeof(Texture));
+                    SetTexture(Mat, "_spc", "_MetallicGlossMap", skipSpecular);
                 }
-                else if (!NarrowSearch)
+                else //Specular & TF|2
                 {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
-
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_col"))
-                        {
-                            CurrentMat.mainTexture = ThisTex;
-                        }
-                    }
+                    SetTexture(Mat, "_spc", "_SpecGlossMap", skipSpecular);
                 }
-                //Normal
-                if (!skipNormal && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_nml" + FileType, typeof(Texture)) != null)
-                {
-                    CurrentMat.SetTexture("_BumpMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_nml" + FileType, typeof(Texture)));
-                }
-                else if (!NarrowSearch)
-                {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
 
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_nml"))
-                        {
-                            CurrentMat.SetTexture("_BumpMap", ThisTex);
-                        }
-                    }
-                }
-                //Specular
-                if (!skipSpecular && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_spc" + FileType, typeof(Texture)) != null)
+                if (Shader == 2) //TF|2
                 {
-                    if (Shader == 1)
-                    {
-                        CurrentMat.SetTexture("_SpecGlossMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_spc" + FileType, typeof(Texture)));
-                    }
-                    else
-                    {
-                        CurrentMat.SetTexture("_MetallicGlossMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_spc" + FileType, typeof(Texture)));
-                    }
-                }
-                else if (!NarrowSearch)
-                {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
-
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_spc"))
-                        {
-                            if (Shader == 1)
-                            {
-                                CurrentMat.SetTexture("_SpecGlossMap", ThisTex);
-                            }
-                            else
-                            {
-                                CurrentMat.SetTexture("_MetallicGlossMap", ThisTex);
-                            }
-                        }
-                    }
-                }
-                //Occlusion
-                if (!skipAO && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ao" + FileType, typeof(Texture)) != null)
-                {
-                    CurrentMat.SetTexture("_OcclusionMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ao" + FileType, typeof(Texture)));
-                }
-                else if (!NarrowSearch)
-                {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
-
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_ao"))
-                        {
-                            CurrentMat.SetTexture("_OcclusionMap", ThisTex);
-                        }
-                    }
-                }
-                //Cavity (TF2 Shader Only)
-                if (Shader == 2 && !skipCavity && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_cav" + FileType, typeof(Texture)) != null)
-                {
-                    CurrentMat.SetTexture("_Cav", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_cav" + FileType, typeof(Texture)));
-                }
-                else if (!NarrowSearch)
-                {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
-
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_cav"))
-                        {
-                            CurrentMat.SetTexture("_Cav", ThisTex);
-                        }
-                    }
-                }
-                //Gloss (TF2 Shader Only)
-                if (Shader == 2 && !skipCavity && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_gls" + FileType, typeof(Texture)) != null)
-                {
-                    CurrentMat.SetTexture("_GlossMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_gls" + FileType, typeof(Texture)));
-                }
-                else if (!NarrowSearch)
-                {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
-
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_gls"))
-                        {
-                            CurrentMat.SetTexture("_GlossMap", ThisTex);
-                        }
-                    }
-                }
-                //Emission
-                if (!skipEmission && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ilm" + FileType, typeof(Texture)) != null)
-                {
-                    CurrentMat.EnableKeyword("_EMISSION");
-                    CurrentMat.SetTexture("_EmissionMap", (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ilm" + FileType, typeof(Texture)));
-                }
-                else if (!NarrowSearch)
-                {
-                    foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
-                    {
-
-                        Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                        if (ThisTex.name.Contains("_ilm"))
-                        {
-                            CurrentMat.SetTexture("_EmissionMap", ThisTex);
-                        }
-                    }
+                    SetTexture(Mat, "_cav", "_Cav", skipCavity);
+                    SetTexture(Mat, "_gls", "_GlossMap", skipCavity);
                 }
             }
 
-            if (ChangeProperties) //Copypaste because yes
+            if (ChangeProperties) //Parameter changing
             {
-                //Normal
-                if (!skipNormal && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_nml" + FileType, typeof(Texture)) != null)
+                if (!skipNormal) //Normal
                 {
-                    CurrentMat.SetFloat("_BumpScale", OverrideNormal);
+                    Mat.SetFloat("_BumpScale", OverrideNormal);
                 }
-
-                //Specular
-                if (!skipSpecular && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_spc" + FileType, typeof(Texture)) != null)
+                if (!skipSpecular) //Specular
                 {
-                    CurrentMat.SetFloat("_GlossMapScale", OverrideSpecular);
+                    Mat.SetFloat("_GlossMapScale", OverrideSpecular);
                 }
-
-                //Emission
-                if (!skipEmission && (Texture)AssetDatabase.LoadAssetAtPath(TextureDirectory + CurrentMat.name + "/" + CurrentMat.name + "_ilm" + FileType, typeof(Texture)) != null)
+                if (!skipEmission && CheckTexture(Mat, "_ilm"))
                 {
-                    CurrentMat.EnableKeyword("_EMISSION");
-                    CurrentMat.SetColor("_EmissionColor", Color.white);
-                    CurrentMat.SetFloat("_EmissionIntensity", OverrideEmission);
-                    //CurrentMat.SetColor("_EmissionColor", CurrentMat.GetColor("_EmissionColor") * OverrideEmission);
+                    Mat.EnableKeyword("_EMISSION");
+                    Mat.SetColor("_EmissionColor", Color.white);
+                    Mat.SetFloat("_EmissionIntensity", OverrideEmission);
                 }
             }
-
             //Editor progressbar popup
             Progress++;
             EditorUtility.DisplayProgressBar("Texturing your materials for you... Sit tight.", "Progress: ( " + Progress + " / " + InputMaterials.Length + " )", Progress / InputMaterials.Length);
         }
         Debug.Log("DONE!");
         EditorUtility.ClearProgressBar();
+    }
+
+    private void SetTexture(Material CurrentMat, string Identifier, string ShaderName, bool Toggler)
+    {
+        if (!Toggler)
+        {
+            if (Directory.Exists(TextureDirectory + CurrentMat.name))
+            {
+                FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "");
+                //Debug.Log(TextureDirectory + CurrentMat.name + " EXISTS! Grabbing:" + Identifier);
+            }
+            else if (Directory.Exists(TextureDirectory + CurrentMat.name + "_colpass"))
+            {
+                FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "_colpass");
+                //Debug.Log(TextureDirectory + CurrentMat.name + "_colpass EXISTS! Grabbing: " + Identifier);
+            }
+        }
+    }
+
+    private void FindTextures(Material CurrentMat, string Identifier, string ShaderName, bool Toggler, string PathAppend)
+    {
+        foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name + PathAppend, "*" + FileType, SearchOption.TopDirectoryOnly))
+        {
+            Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
+
+            if (ThisTex.name.Contains(Identifier))
+            {
+                CurrentMat.SetTexture(ShaderName, ThisTex);
+            }
+        }
+    }
+
+    //Just checks if a texture exists
+    private bool CheckTexture(Material CurrentMat, string Identifier)
+    {
+        bool returnVal = false;
+        if (Directory.Exists(TextureDirectory + CurrentMat.name))
+        {
+            foreach(var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
+            {
+                Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
+
+                if (ThisTex.name.Contains(Identifier))
+                {
+                    returnVal = true;
+                }
+                else
+                {
+                    returnVal = false;
+                }
+            }
+            //Debug.Log(returnVal);
+        }
+        return returnVal;
     }
 }
