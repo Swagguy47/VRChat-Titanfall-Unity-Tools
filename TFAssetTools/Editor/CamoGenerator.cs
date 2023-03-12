@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System;
 
 public class CamoGenerator : EditorWindow
 {
@@ -12,7 +13,7 @@ public class CamoGenerator : EditorWindow
 
     public Texture2D InputNormal, maskMap, InputMask, InputCamo, Overlay;
     public string textureName = "Untitled"; //set automatically
-    public int width, height, CamoWidth, CamoHeight, CamoTileX, CamoTileY;
+    public int width, height, CamoWidth, CamoHeight, CamoTileX, CamoTileY, MaskWidth, MaskHeight;
     public bool inverseSmoothness;
     public bool OutputPNG = true; //If false, encode jpg
     public TextureImporterCompression InputCompression; //For copy compression
@@ -36,8 +37,17 @@ public class CamoGenerator : EditorWindow
 
     public int JpegQuality = 80;
 
-    public bool MakeMats;
+    public bool MakeMats, BetterContrast;
     public Material CurrentMat;
+
+    [Serializable]
+    public struct CamoTex
+    {
+        public Texture2D Skin31Albedo;
+        public Texture2D MaskTexture;
+    }
+
+    public CamoTex[] InputTextures;
 
     private string path //To get input normal asset path
     {
@@ -46,8 +56,8 @@ public class CamoGenerator : EditorWindow
             string a = "";
             if(InputNormal != null)
             {
-                a = AssetDatabase.GetAssetPath((Object)InputNormal);
-                a = a.Substring(0, a.IndexOf(((Object)InputNormal).name));
+                a = AssetDatabase.GetAssetPath((UnityEngine.Object)InputNormal);
+                a = a.Substring(0, a.IndexOf(((UnityEngine.Object)InputNormal).name));
                 return a;
 
             }
@@ -85,7 +95,7 @@ public class CamoGenerator : EditorWindow
 
         GUILayout.Space(5f);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-        //Array field
+        /*//Array field
         ScriptableObject scriptableObj = this;
         SerializedObject serialObj = new SerializedObject(scriptableObj);
         SerializedProperty serialTex = serialObj.FindProperty("InputSkin31Albedos");
@@ -103,6 +113,16 @@ public class CamoGenerator : EditorWindow
         serialObj.ApplyModifiedProperties();
         //-----
         GUILayout.Label("Masks must be in the same order as their\n albedo counterparts.");
+        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);*/
+
+        //Array field
+        ScriptableObject scriptableObj = this;
+        SerializedObject serialObj = new SerializedObject(scriptableObj);
+        SerializedProperty serialTex3 = serialObj.FindProperty("InputTextures");
+
+        EditorGUILayout.PropertyField(serialTex3, true);
+        serialObj.ApplyModifiedProperties();
+        //-----
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         //Array field
         ScriptableObject scriptableObj2 = this;
@@ -142,6 +162,7 @@ public class CamoGenerator : EditorWindow
             GUILayout.Space(15f);
         }
         MakeMats = GUILayout.Toggle(MakeMats, "Generate Materials");
+        BetterContrast = GUILayout.Toggle(BetterContrast, "Use Old Generation Method");
 
         //CrunchCompressOutput = GUILayout.Toggle(CrunchCompressOutput, "Crunch Compress Output");
 
@@ -181,6 +202,9 @@ public class CamoGenerator : EditorWindow
             {
                 CamoWidth = InputCamo.width;
                 CamoHeight = InputCamo.height;
+
+                MaskWidth = InputMask.width;
+                MaskHeight = InputMask.height;
 
                 CamoTileX = width / CamoWidth;
                 CamoTileY = height / CamoHeight;
@@ -297,7 +321,14 @@ public class CamoGenerator : EditorWindow
             if (!Recolor)
             {
                 //All the magic
-                cl[j] = InputNormal.GetPixel(j % width, j / width) + (InputCamo.GetPixel(j % CamoWidth, j / height) * InputMask.GetPixel(j % width, j / width));
+                if (BetterContrast)
+                { //legacy method
+                    cl[j] = InputNormal.GetPixel(j % width, j / width) + (InputCamo.GetPixel(j % CamoWidth, j / height) * InputMask.GetPixel(j % width, j / width));
+                }
+                else
+                { //new method
+                    cl[j] = (InputNormal.GetPixel(j % width, j / width) * (Color.white - InputMask.GetPixel(j % width, j / width))) + (InputCamo.GetPixel(j % CamoWidth, j / height) * InputMask.GetPixel(j % width, j / width));
+                }
             }
             else //Recolor camo
             {
@@ -317,35 +348,35 @@ public class CamoGenerator : EditorWindow
         if (FixMasks)
         {
             //Skin31
-            TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal));
+            TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)InputNormal));
             A.isReadable = true;
             A.crunchedCompression = false;
 
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)InputNormal), ImportAssetOptions.ForceUpdate);
-            InputNormal = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)InputNormal), typeof(Texture2D));
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((UnityEngine.Object)InputNormal), ImportAssetOptions.ForceUpdate);
+            InputNormal = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)InputNormal), typeof(Texture2D));
             //Mask
-            TextureImporter B = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)InputMask));
+            TextureImporter B = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)InputMask));
             B.isReadable = true;
             B.crunchedCompression = false;
 
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)InputMask), ImportAssetOptions.ForceUpdate);
-            InputMask = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)InputMask), typeof(Texture2D));
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((UnityEngine.Object)InputMask), ImportAssetOptions.ForceUpdate);
+            InputMask = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)InputMask), typeof(Texture2D));
         }
         if (!Recolor)
         {
             //Camo
-            TextureImporter C = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)InputCamo));
+            TextureImporter C = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)InputCamo));
             C.isReadable = true;
             C.crunchedCompression = false;
 
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)InputCamo), ImportAssetOptions.ForceUpdate);
-            InputCamo = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)InputCamo), typeof(Texture2D));
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((UnityEngine.Object)InputCamo), ImportAssetOptions.ForceUpdate);
+            InputCamo = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)InputCamo), typeof(Texture2D));
         }
     }
 
     private void FixOutput() //Does as title suggests
     {
-        TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((Object)Output));
+        TextureImporter A = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)Output));
         A.isReadable = true;
         if (CrunchCompressOutput)
         {
@@ -353,8 +384,8 @@ public class CamoGenerator : EditorWindow
             A.compressionQuality = CrunchQuality;
         }
 
-        AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)Output), ImportAssetOptions.ForceUpdate);
-        Output = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)Output), typeof(Texture2D));
+        AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((UnityEngine.Object)Output), ImportAssetOptions.ForceUpdate);
+        Output = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((UnityEngine.Object)Output), typeof(Texture2D));
     }
 
     public Texture2D ShowTexGUI(string fieldName,Texture2D texture) //Honestly forgot what this does
@@ -368,14 +399,17 @@ public class CamoGenerator : EditorWindow
     public void BatchConvert()
     {
         CurrentTexture = -1;
-        Progress = InputCamos.Length * InputSkin31Albedos.Length;
-        foreach (Texture2D CurrentTex in InputSkin31Albedos)
+        //Progress = InputCamos.Length * InputSkin31Albedos.Length;
+        Progress = InputCamos.Length * InputTextures.Length;
+        foreach (CamoTex CurrentTexSet in InputTextures) //InputSkin31Albedos
         {
+            Texture2D CurrentTex = CurrentTexSet.Skin31Albedo;
+
             FixMasks = true;
             CurrentTexture++;
 
             InputNormal = CurrentTex;
-            InputMask = InputMasks[CurrentTexture];
+            InputMask = CurrentTexSet.MaskTexture;//InputMasks[CurrentTexture];
             if (!Recolor)
             {
                 foreach (Texture2D CamoTex in InputCamos)
@@ -388,7 +422,7 @@ public class CamoGenerator : EditorWindow
                     //Progress logs
                     Progress--;
 
-                    EditorUtility.DisplayProgressBar("Processing Camos...", "Outputted:" + (Mathf.Abs(Progress - (InputCamos.Length * InputSkin31Albedos.Length))) + "/" + InputCamos.Length * InputSkin31Albedos.Length + " Current Texture: " + InputNormal.name, (Mathf.Abs(Progress - (InputCamos.Length * InputSkin31Albedos.Length)) / (InputCamos.Length * InputSkin31Albedos.Length)));
+                    EditorUtility.DisplayProgressBar("Processing Camos...", "Outputted:" + (Mathf.Abs(Progress - (InputCamos.Length * InputTextures.Length))) + "/" + InputCamos.Length * InputTextures.Length + " Current Texture: " + InputNormal.name, (Mathf.Abs(Progress - (InputCamos.Length * InputTextures.Length)) / (InputCamos.Length * InputTextures.Length)));
                     //Debug.Log("Processing Camos... Outputted:" + Progress + "/" + InputCamos.Length * InputSkin31Albedos.Length + "\nCurrent Texture: " + InputNormal.name + " With Camo: " + InputCamo.name);
                 }
             }
@@ -396,17 +430,17 @@ public class CamoGenerator : EditorWindow
             {
                 PackTextures();
                 Progress--;
-                EditorUtility.DisplayProgressBar("Processing Camos...", "Outputted:" + (Mathf.Abs(Progress - (InputSkin31Albedos.Length))) + "/" + InputSkin31Albedos.Length + " Current Texture: " + InputNormal.name, (Mathf.Abs(Progress - (InputSkin31Albedos.Length)) / (InputSkin31Albedos.Length)));
+                EditorUtility.DisplayProgressBar("Processing Camos...", "Outputted:" + (Mathf.Abs(Progress - (InputTextures.Length))) + "/" + InputTextures.Length + " Current Texture: " + InputNormal.name, (Mathf.Abs(Progress - (InputTextures.Length)) / (InputTextures.Length)));
             }
         }
         EditorUtility.ClearProgressBar();
         if (!Recolor)
         {
-            Debug.Log("<color=lime>PROCESSING COMPLETE!</color> <color=white>" + (InputCamos.Length * InputSkin31Albedos.Length) + " TEXTURES FINALIZED!</color>");
+            Debug.Log("<color=lime>PROCESSING COMPLETE!</color> <color=white>" + (InputCamos.Length * InputTextures.Length) + " TEXTURES FINALIZED!</color>");
         }
         else
         {
-            Debug.Log("<color=lime>PROCESSING COMPLETE!</color> <color=white>" + InputSkin31Albedos.Length + " TEXTURES RECOLORED!</color>");
+            Debug.Log("<color=lime>PROCESSING COMPLETE!</color> <color=white>" + InputTextures.Length + " TEXTURES RECOLORED!</color>");
         }
     }
 
