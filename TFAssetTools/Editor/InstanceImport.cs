@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
-using static PlasticPipe.Server.MonitorStats;
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
 using System.Runtime.Serialization.Formatters.Binary;
 
 public class InstanceImport : EditorWindow

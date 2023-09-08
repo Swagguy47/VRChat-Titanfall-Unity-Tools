@@ -7,7 +7,6 @@ using UnityEditor;
 using System.IO;
 using System.ComponentModel;
 using System.Data;
-using VRC.Udon.Graph.NodeRegistries;
 
 public class ParticleConvert : EditorWindow
 {
