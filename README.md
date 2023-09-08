@@ -4,8 +4,7 @@ A small WIP toolset for Unity that helps improve and automate the workflow of ma
 Guide:
 https://youtu.be/XUO1OT2Eres
 
-
-![AC pink zone](https://user-images.githubusercontent.com/67041649/166842092-fb9ab7ab-71a7-4e6f-8c6f-6d648cb16d21.jpg)
+![AngelCityZoomout](https://github.com/Swagguy47/VRChat-Titanfall-Unity-Tools/assets/67041649/9af02fd7-f12f-495f-90a3-c87a0840fa48)
 
 
 https://user-images.githubusercontent.com/67041649/162865962-9a0db079-918a-4b92-957a-c2f54999ef43.mp4
@@ -29,4 +28,3 @@ https://user-images.githubusercontent.com/67041649/163736424-11214bdf-2990-4104-
 
 
 https://user-images.githubusercontent.com/67041649/166842051-4adf6c0a-75da-4f90-b15e-eb0a6b844c06.mp4
-
