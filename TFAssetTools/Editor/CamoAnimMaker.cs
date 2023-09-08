@@ -6,9 +6,9 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using VRC.SDK3.Avatars.ScriptableObjects;
+/*using VRC.SDK3.Avatars.ScriptableObjects;
 using VRC.SDK3.Editor;
-using VRC.SDK3.Avatars.Components;
+using VRC.SDK3.Avatars.Components;*/
 
 public class CamoAnimMaker : EditorWindow
 {
@@ -22,26 +22,26 @@ public class CamoAnimMaker : EditorWindow
     public Material OGMat;
     public Vector2 scrollPos;
     public float Progress;
-    public VRCExpressionsMenu.Control MenuControl;
+    /*public VRCExpressionsMenu.Control MenuControl;
     public VRCExpressionsMenu.Control.Parameter MenuParam;
     public VRCExpressionsMenu CurrentMenu;
     public VRCExpressionParameters.Parameter ExpressionParam;
-    public VRCExpressionParameters.Parameter[] ExpParams = { null };
+    public VRCExpressionParameters.Parameter[] ExpParams = { null };*/
     public Texture2D[] MenuIcons;
     public int[] Dumb = { 0, 0, 0, 0, 0, 0, 0, 0 };
-    public List<VRCExpressionsMenu> AllMenus; 
+    //public List<VRCExpressionsMenu> AllMenus; 
 
     public List<AnimationClip> AllAnims;
 
     //[MenuItem("TF-Automation/Camo Anim Maker")]
-    [MenuItem("Titanfall Asset Tools/Camos/Camo Anim Maker (ADVANCED)")]
+    [MenuItem("Titanfall Asset Tools/Camos/Camo Anim Maker")]
 
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(CamoAnimMaker));
     }
 
-    struct VRCParams
+    /*struct VRCParams
     {
         //Variable declaration
         //Note: I'm explicitly declaring them as public, but they are public by default. You can use private if you choose.
@@ -56,7 +56,7 @@ public class CamoAnimMaker : EditorWindow
             this.ValueType = VRCExpressionParameters.ValueType.Int;
             this.Saved = true;
         }
-    }
+    }*/
 
     private void OnEnable()
     {
@@ -127,7 +127,7 @@ public class CamoAnimMaker : EditorWindow
             //ExistingAnimator = EditorGUILayout.ObjectField("Add to existing animator", ExistingAnimator, typeof(Animator), true) as Animator;
         }
         GUILayout.Space(20f);
-
+        GUILayout.Label("-currently disabled-");
         MakeVRC = GUILayout.Toggle(MakeVRC, "Generate VRChat Components (Experimental)");
         if (MakeVRC)
         {
@@ -359,9 +359,9 @@ public class CamoAnimMaker : EditorWindow
         EditorUtility.ClearProgressBar();
     }
 
-    private void MakeVRCComponents()
+    private void MakeVRCComponents() 
     {
-        EditorUtility.DisplayProgressBar("Generating VRChat Components:", "Almost Done!", CamoMaterials.Length / iteration);
+        /*EditorUtility.DisplayProgressBar("Generating VRChat Components:", "Almost Done!", CamoMaterials.Length / iteration);
         AllMenus.Clear();
 
         //Creates the vrc paramteters asset
@@ -444,7 +444,7 @@ public class CamoAnimMaker : EditorWindow
                 AllMenuIterator++;
             }
         }
-
+*/
         EditorUtility.ClearProgressBar();
     }
 }

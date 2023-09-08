@@ -44,6 +44,11 @@ public class TFTutorials : EditorWindow
             Application.OpenURL("https://youtu.be/TVxSyMi-TfM");
         }
         GUILayout.Space(15f);
+        if (GUILayout.Button("(Video): 'Instancing Titanfall Map Props'"))
+        {
+            Application.OpenURL("https://youtu.be/V-4rb4wx498");
+        }
+        GUILayout.Space(15f);
         //if (GUILayout.Button("(Video): Walkthrough of the Toolset"))
         //{
         //    Application.OpenURL("");

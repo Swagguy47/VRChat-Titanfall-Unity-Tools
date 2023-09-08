@@ -33,7 +33,9 @@ public class MapLightFix : EditorWindow
 
     public int Priority;
 
-    [MenuItem("Titanfall Asset Tools/Map Light Fix")]
+    public bool RightHandDebug;
+
+    [MenuItem("Titanfall Asset Tools/Maps/Light Fix")]
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(MapLightFix));
@@ -73,6 +75,8 @@ public class MapLightFix : EditorWindow
         Priority = EditorGUILayout.Popup("Render Mode: ", Priority, options);
 
         GUILayout.Space(5f);
+
+        RightHandDebug = GUILayout.Toggle(RightHandDebug, "Debug Spotlight RightHand Rotation");
 
         if (GUILayout.Button("Fix Lights"))
         {
@@ -140,7 +144,18 @@ public class MapLightFix : EditorWindow
                 ThisLight.renderMode = LightRenderMode.ForceVertex;
             }
 
-            
+            if (ThisLight.type == LightType.Spot)
+            {
+                Quaternion LightRot = ThisLight.transform.rotation;
+                ThisLight.transform.rotation = Quaternion.Euler(LightRot.eulerAngles.x * 100, -LightRot.eulerAngles.y * 100, -LightRot.eulerAngles.z * 100);
+                ThisLight.spotAngle = ThisLight.spotAngle * 100;
+                if (RightHandDebug)
+                {
+                    LightRot = ThisLight.transform.rotation;
+
+                    ThisLight.transform.rotation = Quaternion.Euler(LightRot.eulerAngles.x, -LightRot.eulerAngles.z, -LightRot.eulerAngles.y);
+                }
+            }
         }
     }
 }
