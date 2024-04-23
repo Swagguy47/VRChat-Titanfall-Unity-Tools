@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using UnityEditor;
-using UnityEditor.Experimental.AssetImporters;
+using UnityEditor.AssetImporters;
 using UnityEngine;
 
 [ScriptedImporter(1, "pcf")]

@@ -6,26 +6,26 @@ using System.IO;
 
 public static class NormalConvShortcut
 {
-    new static Texture2D InputNormal, maskMap;
-    new static string textureName = "Untitled"; //set automatically
-    new static int width, height;
-    new static bool inverseSmoothness;
-    new static bool replaceInput = true;
-    new static bool AutoFix = true;
-    new static bool OutputFix = true;
-    new static bool OutputPNG = false; //If false, encode jpg
-    new static bool CopyCompression = true;
-    new static TextureImporterCompression InputCompression; //For copy compression
-    new static Texture2D Output; //for post process effects
+    static Texture2D InputNormal, maskMap;
+    static string textureName = "Untitled"; //set automatically
+    static int width, height;
+    static bool inverseSmoothness;
+    static bool replaceInput = true;
+    static bool AutoFix = true;
+    static bool OutputFix = true;
+    static bool OutputPNG = false; //If false, encode jpg
+    static bool CopyCompression = true;
+    static TextureImporterCompression InputCompression; //For copy compression
+    static Texture2D Output; //for post process effects
 
     //Batch params
-    new static Texture2D[] InputTextures;
-    new static Material[] InputMaterials;
-    new static Vector2 scrollPos;
+    static Texture2D[] InputTextures;
+    static Material[] InputMaterials;
+    static Vector2 scrollPos;
 
-    new static float Progress;
+    static float Progress;
 
-    new static string path //To get input normal asset path
+    static string path //To get input normal asset path
     {
         get
         {
@@ -126,7 +126,7 @@ public static class NormalConvShortcut
         AssetDatabase.Refresh();
 
     }
-    new static Color[] ColorArray() //Where the magic happens, fips around the color channels
+    static Color[] ColorArray() //Where the magic happens, fips around the color channels
     {
 
         Color[] cl = new Color[width * height];
@@ -200,13 +200,6 @@ public static class NormalConvShortcut
         }
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath((Object)Output), ImportAssetOptions.ForceUpdate);
         Output = (Texture2D)AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath((Object)Output), typeof(Texture2D));
-    }
-
-    new static Texture2D ShowTexGUI(string fieldName, Texture2D texture) //Honestly forgot what this does
-    {
-
-        return (Texture2D)EditorGUILayout.ObjectField(fieldName, texture, typeof(Texture2D), false);
-
     }
 
 
