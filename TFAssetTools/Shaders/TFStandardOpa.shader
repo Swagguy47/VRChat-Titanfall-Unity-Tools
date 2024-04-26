@@ -105,7 +105,7 @@ Shader "TITANFALL/Standard"
 			float4 Albedo53 = ( tex2D( _MainTex, MainUV108 ) * Cav33 );
 			float4 _Color_Instance = UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color);
 			float4 CamoTex63 = ( tex2D( _DetailAlbedoMap, DetailUV112 ) * Cav33 );
-			float4 CamoMask60 = tex2D( _DetailMask, DetailUV112 );
+			float4 CamoMask60 = tex2D( _DetailMask, MainUV108 );
 			float4 lerpResult58 = lerp( ( Albedo53 * _Color_Instance ) , CamoTex63 , CamoMask60);
 			float4 Color48 = lerpResult58;
 			o.Albedo = Color48.rgb;
@@ -133,7 +133,7 @@ Shader "TITANFALL/Standard"
 }
 /*ASEBEGIN
 Version=19105
-Node;AmplifyShaderEditor.CommentaryNode;102;-2583.969,1088;Inherit;False;994;1304;Camos / Detail;14;60;59;62;63;68;69;73;72;75;76;77;74;78;122;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode;102;-2583.969,1088;Inherit;False;994;1304;Camos / Detail;15;60;59;62;63;68;69;73;72;75;76;77;74;78;122;123;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;57;-2648.409,720;Inherit;False;997.2067;329.8243;Cavity;3;118;29;33;;0.5143232,0,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;55;-2655.695,-590.9303;Inherit;False;1018.073;390.0239;Albedo;5;115;1;67;70;53;;1,0.02937273,0,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;52;-1600,720;Inherit;False;895.0516;333.681;Normal;6;80;79;15;14;16;119;;1,0,0.8207312,1;0;0
@@ -163,7 +163,7 @@ Node;AmplifyShaderEditor.LerpOp;58;-1024,-544;Inherit;False;3;0;COLOR;0,0,0,0;Fa
 Node;AmplifyShaderEditor.RegisterLocalVarNode;48;-880,-544;Inherit;False;Color;-1;True;1;0;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.GetLocalVarNode;56;-2160,480;Inherit;False;33;Cav;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.RangedFloatNode;21;-1536,64;Inherit;False;InstancedProperty;_Glossiness;Smoothness;7;1;[Gamma];Create;False;0;0;0;False;0;False;1;1;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.StandardSurfaceOutputNode;0;-384,-16;Float;False;True;-1;2;TFShaderGUI;0;0;StandardSpecular;TITANFALL/Standard;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;False;False;False;False;False;False;Back;0;False;;0;False;;True;0;True;_DepthOffset;0;False;_DepthOffset;False;0;Opaque;0.5;True;True;0;True;Opaque;;Geometry;All;12;all;True;True;True;True;0;False;;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;2;15;10;25;False;0.5;True;2;5;False;;10;False;;0;0;False;;0;False;;0;False;;0;False;;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;-1;-1;-1;-1;0;False;0;0;True;_CullMode;-1;0;True;_AlphaClip;0;0;0;False;0.1;False;;0;False;;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.StandardSurfaceOutputNode;0;-384,-16;Float;False;True;-1;2;TFShaderGUI;0;0;StandardSpecular;TITANFALL/Standard;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;False;False;False;False;False;False;Back;0;False;;0;False;;True;0;True;_DepthOffset;0;False;_DepthOffset;False;0;Opaque;0.5;True;True;0;False;Opaque;;Geometry;All;12;all;True;True;True;True;0;False;;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;2;15;10;25;False;0.5;True;2;5;False;;10;False;;0;0;False;;0;False;;0;False;;0;False;;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;-1;-1;-1;-1;0;False;0;0;True;_CullMode;-1;0;True;_AlphaClip;0;0;0;False;0.1;False;;0;False;;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
 Node;AmplifyShaderEditor.GetLocalVarNode;65;-640,240;Inherit;False;32;Ao;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.GetLocalVarNode;54;-1552,-544;Inherit;False;53;Albedo;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;53;-1920,-544;Inherit;False;Albedo;-1;True;1;0;COLOR;0,0,0,0;False;1;COLOR;0
@@ -224,6 +224,7 @@ Node;AmplifyShaderEditor.GetLocalVarNode;121;-1584,144;Inherit;False;108;MainUV;
 Node;AmplifyShaderEditor.GetLocalVarNode;122;-2544,1664;Inherit;False;112;DetailUV;1;0;OBJECT;;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.SamplerNode;59;-2343.969,1456;Inherit;True;Property;_DetailMask;_Msk;12;2;[Header];[SingleLineTexture];Create;False;2;________________________________________________________________________________________________;Detail or Camo;0;0;False;0;False;-1;None;None;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;62;-2343.969,1136;Inherit;True;Property;_DetailAlbedoMap;Detail/Camo;13;1;[SingleLineTexture];Create;False;2;________________________________________________________________________________________________;Detail or Camo;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.GetLocalVarNode;123;-2544,1472;Inherit;False;108;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 WireConnection;23;0;22;0
 WireConnection;23;1;25;0
 WireConnection;26;0;23;0
@@ -295,7 +296,7 @@ WireConnection;110;1;114;4
 WireConnection;111;0;109;0
 WireConnection;111;1;110;0
 WireConnection;112;0;111;0
-WireConnection;59;1;122;0
+WireConnection;59;1;123;0
 WireConnection;62;1;122;0
 ASEEND*/
-//CHKSM=98F966880FC302F0B81C1CEAF8D9B66F68201DDA
+//CHKSM=B74F1784D8C1AF3F3E63CA37F332D85EF783C495

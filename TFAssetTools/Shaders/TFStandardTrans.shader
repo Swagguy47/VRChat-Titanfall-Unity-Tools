@@ -113,7 +113,7 @@ Shader "Hidden/TITANFALL/Transparent/Standard"
 			float4 _Color_Instance = UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color);
 			float4 temp_output_2_0 = ( Albedo53 * _Color_Instance );
 			float4 CamoTex63 = ( tex2D( _DetailAlbedoMap, DetailUV112 ) * Cav33 );
-			float4 CamoMask60 = tex2D( _DetailMask, DetailUV112 );
+			float4 CamoMask60 = tex2D( _DetailMask, MainUV108 );
 			float4 lerpResult58 = lerp( temp_output_2_0 , CamoTex63 , CamoMask60);
 			float4 Color48 = lerpResult58;
 			o.Albedo = Color48.rgb;
@@ -327,6 +327,7 @@ Node;AmplifyShaderEditor.TextureCoordinatesNode;111;-1138.222,1537.621;Inherit;F
 Node;AmplifyShaderEditor.RegisterLocalVarNode;112;-930.222,1537.621;Inherit;False;DetailUV;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.Vector4Node;113;-1504.825,1188.721;Inherit;False;InstancedProperty;_Tiling;Tiling | Offset;4;0;Create;False;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.Vector4Node;114;-1506.222,1537.621;Inherit;False;InstancedProperty;_DetailTiling;Tiling | Offset;20;0;Create;False;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.GetLocalVarNode;123;-2556.676,1469.161;Inherit;False;108;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 WireConnection;23;0;22;0
 WireConnection;23;1;25;0
 WireConnection;26;0;23;0
@@ -392,7 +393,7 @@ WireConnection;14;5;15;0
 WireConnection;1;1;115;0
 WireConnection;22;1;116;0
 WireConnection;62;1;122;0
-WireConnection;59;1;122;0
+WireConnection;59;1;123;0
 WireConnection;105;0;113;1
 WireConnection;105;1;113;2
 WireConnection;106;0;113;3
@@ -408,4 +409,4 @@ WireConnection;111;0;109;0
 WireConnection;111;1;110;0
 WireConnection;112;0;111;0
 ASEEND*/
-//CHKSM=D2FF15F5F1CB990A8EA29A6E96CF1BF713F40D01
+//CHKSM=CE70E430D60E30F6CEBF1F7D23F4A23BA8B95E4C

@@ -108,7 +108,7 @@ Shader "Hidden/TITANFALL/Transparent/Standard Optimized"
 			float4 _Color_Instance = UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color);
 			float4 temp_output_2_0 = ( Albedo53 * _Color_Instance );
 			float4 CamoTex63 = ( tex2D( _DetailAlbedoMap, DetailUV117 ) * Cav33 );
-			float4 CamoMask60 = tex2D( _DetailMask, DetailUV117 );
+			float4 CamoMask60 = tex2D( _DetailMask, MainUV113 );
 			float4 lerpResult58 = lerp( temp_output_2_0 , CamoTex63 , CamoMask60);
 			float4 Color48 = lerpResult58;
 			o.Albedo = Color48.rgb;
@@ -224,7 +224,7 @@ Shader "Hidden/TITANFALL/Transparent/Standard Optimized"
 /*ASEBEGIN
 Version=19105
 Node;AmplifyShaderEditor.CommentaryNode;108;-2684.932,368;Inherit;False;1026.927;324.9287;Packed Texture;7;121;104;106;33;32;31;105;;0,1,0.6912031,1;0;0
-Node;AmplifyShaderEditor.CommentaryNode;102;-2606.51,1090.394;Inherit;False;994;1304;Camos / Detail;14;60;59;62;63;68;69;73;72;75;76;77;74;78;120;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode;102;-2606.51,1090.394;Inherit;False;994;1304;Camos / Detail;15;60;59;62;63;68;69;73;72;75;76;77;74;78;120;127;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;55;-2687.295,-590.9303;Inherit;False;1049.673;382.7239;Albedo;8;1;97;100;67;70;53;123;124;;1,0.02937273,0,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;52;-1600,720;Inherit;False;895.0516;333.681;Normal;6;80;79;15;14;16;126;;1,0,0.8207312,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;50;-1600,-592;Inherit;False;893.7484;381.5861;Color;11;54;48;46;6;2;7;61;58;64;99;101;;1,0.524459,0,1;0;0
@@ -320,6 +320,7 @@ Node;AmplifyShaderEditor.GetLocalVarNode;124;-2336,-288;Inherit;False;113;MainUV
 Node;AmplifyShaderEditor.GetLocalVarNode;125;-1584,608;Inherit;False;113;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.GetLocalVarNode;126;-1568,768;Inherit;False;113;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.RangedFloatNode;15;-1568,848;Inherit;False;InstancedProperty;_NormalScale;NormalScale;6;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;127;-2560,1472;Inherit;False;113;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 WireConnection;23;0;22;0
 WireConnection;23;1;25;0
 WireConnection;26;0;23;0
@@ -378,7 +379,7 @@ WireConnection;76;1;120;0
 WireConnection;74;1;120;0
 WireConnection;72;1;120;0
 WireConnection;72;5;78;0
-WireConnection;59;1;120;0
+WireConnection;59;1;127;0
 WireConnection;62;1;120;0
 WireConnection;104;1;121;0
 WireConnection;22;1;122;0
@@ -402,4 +403,4 @@ WireConnection;18;1;125;0
 WireConnection;14;1;126;0
 WireConnection;14;5;15;0
 ASEEND*/
-//CHKSM=34D503CFC06692140095B7F7F401FF36DAC58E24
+//CHKSM=3E1A22962E907FAFE7CCFEA6CD7E2B53AE95F7E7

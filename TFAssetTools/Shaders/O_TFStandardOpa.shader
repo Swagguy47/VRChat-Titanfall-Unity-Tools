@@ -103,7 +103,7 @@ Shader "TITANFALL/Standard Optimized"
 			float4 _Color_Instance = UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color);
 			float4 temp_output_2_0 = ( Albedo53 * _Color_Instance );
 			float4 CamoTex63 = ( tex2D( _DetailAlbedoMap, DetailUV124 ) * Cav33 );
-			float4 CamoMask60 = tex2D( _DetailMask, DetailUV124 );
+			float4 CamoMask60 = tex2D( _DetailMask, MainUV114 );
 			float4 lerpResult58 = lerp( temp_output_2_0 , CamoTex63 , CamoMask60);
 			float4 Color48 = lerpResult58;
 			o.Albedo = Color48.rgb;
@@ -135,7 +135,7 @@ Shader "TITANFALL/Standard Optimized"
 Version=19105
 Node;AmplifyShaderEditor.CommentaryNode;127;-1582.525,1088.076;Inherit;False;851.3975;645.8995;Tiling;10;112;113;111;114;120;121;122;124;109;123;;0,0,0,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;108;-2681.932,368;Inherit;False;1037.927;327.9287;Packed Texture;7;117;104;106;33;32;31;105;;0,1,0.6912031,1;0;0
-Node;AmplifyShaderEditor.CommentaryNode;102;-2669.558,1088;Inherit;False;994;1304;Camos / Detail;14;60;59;62;63;68;69;73;72;75;76;77;74;78;125;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode;102;-2669.558,1088;Inherit;False;994;1304;Camos / Detail;15;60;59;62;63;68;69;73;72;75;76;77;74;78;125;128;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;55;-2686.295,-590.9303;Inherit;False;1048.673;379.7239;Albedo;5;116;1;67;70;53;;1,0.02937273,0,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;52;-1600,720;Inherit;False;895.0516;333.681;Normal;6;80;79;15;14;16;119;;1,0,0.8207312,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;50;-1600,-592;Inherit;False;893.7484;381.5861;Color;9;54;48;46;6;2;7;61;58;64;;1,0.524459,0,1;0;0
@@ -225,6 +225,7 @@ Node;AmplifyShaderEditor.SamplerNode;18;-1568,416;Inherit;True;Property;_SpecGlo
 Node;AmplifyShaderEditor.SamplerNode;14;-1408,768;Inherit;True;Property;_BumpMap;_Nml;4;2;[Header];[SingleLineTexture];Create;False;2;________________________________________________________________________________________________;Lighting;0;0;False;0;False;-1;None;fcc32c8ff9ed7b74f9e7235788c7640c;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;59;-2429.558,1456;Inherit;True;Property;_DetailMask;_Msk;11;2;[Header];[SingleLineTexture];Create;False;2;________________________________________________________________________________________________;Detail or Camo;0;0;False;0;False;-1;None;None;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;62;-2429.558,1136;Inherit;True;Property;_DetailAlbedoMap;Detail/Camo;12;1;[SingleLineTexture];Create;False;2;________________________________________________________________________________________________;Camo or Detail Maps;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.GetLocalVarNode;128;-2624,1472;Inherit;False;114;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 WireConnection;23;0;22;0
 WireConnection;23;1;25;0
 WireConnection;26;0;23;0
@@ -298,7 +299,7 @@ WireConnection;22;1;115;0
 WireConnection;18;1;118;0
 WireConnection;14;1;119;0
 WireConnection;14;5;15;0
-WireConnection;59;1;125;0
+WireConnection;59;1;128;0
 WireConnection;62;1;125;0
 ASEEND*/
-//CHKSM=83E8BD86BEF932640942BC8B81616607D312F1A0
+//CHKSM=4827396904785F6AE34B814AD5BD420BE1DDE8E2
