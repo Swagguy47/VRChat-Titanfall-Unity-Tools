@@ -198,6 +198,7 @@ namespace TFAssetTools.Editor
                         Mat.EnableKeyword("_EMISSION");
                         Mat.SetColor("_EmissionColor", Color.white);
                         Mat.SetFloat("_EmissionIntensity", OverrideEmission);
+                        Mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
                     }
                 }
                 //Editor progressbar popup

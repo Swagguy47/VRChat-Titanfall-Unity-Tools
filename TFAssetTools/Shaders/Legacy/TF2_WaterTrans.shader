@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "TITANFALL/Transparent/Water"
+Shader "TITANFALL/Legacy/Transparent/Water"
 {
     Properties
     {
