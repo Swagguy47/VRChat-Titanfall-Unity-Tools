@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -127,7 +128,7 @@ namespace TFAssetTools.Editor
             NarrowSearch = GUILayout.Toggle(NarrowSearch, "Specific Texture Search (Not Recommended)");
             GUILayout.Space(5f);
 
-            if (GUILayout.Button("Convert"))
+            if (GUILayout.Button("Texture!"))
             {
                 ConvertMaterials();
             }
@@ -178,7 +179,8 @@ namespace TFAssetTools.Editor
 
                     if (Shader == 2) //TF|2
                     {
-                        SetTexture(Mat, "_cav", "_Cav", skipCavity);
+                        SetTexture(Mat, "_cav", "_Cav", skipCavity);    //  old shader
+                        SetTexture(Mat, "_cav", "_ParallaxMap", skipCavity);    //  new shader
                         SetTexture(Mat, "_gls", "_GlossMap", skipCavity);
                     }
                 }
@@ -211,24 +213,40 @@ namespace TFAssetTools.Editor
 
         private void SetTexture(Material CurrentMat, string Identifier, string ShaderName, bool Toggler)
         {
+            //  filter unused property names
+            if (!CurrentMat.GetPropertyNames(MaterialPropertyType.Texture).Contains<string>(ShaderName))
+                return;
+
             if (!Toggler)
             {
-                if (Directory.Exists(TextureDirectory + CurrentMat.name))
+                
+                var folders = Directory.GetDirectories(TextureDirectory, CurrentMat.name, SearchOption.AllDirectories);//AssetDatabase.GetSubFolders(TextureDirectory.Substring(0, TextureDirectory.Length - 1));
+                var newDir = TextureDirectory + CurrentMat.name;
+                foreach (var folder in folders)
                 {
-                    FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "");
+                    if (Directory.GetFiles(folder, CurrentMat.name + "_col" + FileType).Length > 0) {
+                        //Debug.Log("Found subfolder!");
+                        newDir = folder;
+                        break;
+                    }
+                }
+
+                if (Directory.Exists(newDir))
+                {
+                    FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "", newDir);
                     //Debug.Log(TextureDirectory + CurrentMat.name + " EXISTS! Grabbing:" + Identifier);
                 }
-                else if (Directory.Exists(TextureDirectory + CurrentMat.name + "_colpass"))
+                else if (Directory.Exists(newDir + "_colpass"))
                 {
-                    FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "_colpass");
+                    FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "_colpass", newDir);
                     //Debug.Log(TextureDirectory + CurrentMat.name + "_colpass EXISTS! Grabbing: " + Identifier);
                 }
             }
         }
 
-        private void FindTextures(Material CurrentMat, string Identifier, string ShaderName, bool Toggler, string PathAppend)
+        private void FindTextures(Material CurrentMat, string Identifier, string ShaderName, bool Toggler, string PathAppend, string Dir)
         {
-            foreach (var file in Directory.GetFiles(TextureDirectory + CurrentMat.name + PathAppend, "*" + FileType, SearchOption.TopDirectoryOnly))
+            foreach (var file in Directory.GetFiles(Dir + PathAppend, "*" + FileType, SearchOption.TopDirectoryOnly))
             {
                 Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
 
@@ -242,10 +260,22 @@ namespace TFAssetTools.Editor
         //Just checks if a texture exists
         private bool CheckTexture(Material CurrentMat, string Identifier)
         {
-            bool returnVal = false;
-            if (Directory.Exists(TextureDirectory + CurrentMat.name))
+            var folders = Directory.GetDirectories(TextureDirectory, CurrentMat.name, SearchOption.AllDirectories);//AssetDatabase.GetSubFolders(TextureDirectory.Substring(0, TextureDirectory.Length - 1));
+            var newDir = TextureDirectory + CurrentMat.name;
+            foreach (var folder in folders)
             {
-                foreach(var file in Directory.GetFiles(TextureDirectory + CurrentMat.name, "*" + FileType, SearchOption.TopDirectoryOnly))
+                if (Directory.GetFiles(folder, CurrentMat.name + "_col" + FileType).Length > 0)
+                {
+                    //Debug.Log("Found subfolder!");
+                    newDir = folder;
+                    break;
+                }
+            }
+
+            bool returnVal = false;
+            if (Directory.Exists(newDir))
+            {
+                foreach(var file in Directory.GetFiles("" + newDir, "*" + FileType, SearchOption.TopDirectoryOnly))
                 {
                     Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
 
