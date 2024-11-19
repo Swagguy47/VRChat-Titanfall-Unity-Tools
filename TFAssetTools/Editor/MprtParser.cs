@@ -1,16 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Runtime.Remoting.Messaging;
-using NUnit.Framework.Interfaces;
-using UnityEngine.UIElements;
 
 public class MprtParser : EditorWindow
 {

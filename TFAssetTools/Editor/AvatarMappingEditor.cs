@@ -2,7 +2,6 @@ using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 [CustomEditor(typeof(Avatar))]
 public class AvatarMappingEditor : Editor
