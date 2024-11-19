@@ -13,12 +13,12 @@ namespace TFAssetTools.Editor
 
         public Material[] InputMaterials;
 
-        private string TextureDirectory;
+        private string TextureDirectory = "Assets/";
 
         private string FileType = ".png";
 
         //Methods
-        private int Shader;
+        private int ShaderType;
 
         //Overrides
         private bool ChangeTex = true;
@@ -31,12 +31,16 @@ namespace TFAssetTools.Editor
         private bool skipAO;
         private bool skipGloss;
         private bool skipCavity;
+        private bool skipOpacity;
 
         private float OverrideNormal = 1;
         [Range(0,1)] private float OverrideSpecular = 0.6f;
-        private float OverrideEmission = 1, Progress;
+        private float OverrideEmission = 3, Progress;
         private bool NarrowSearch;
         private Texture[] AllTex;
+
+        [ColorUsage(false, true)]
+        private Color glowCol = Color.white * 6;
 
         [MenuItem("Titanfall Asset Tools/Materials/Auto Texture Materials")]
         public static void ShowWindow()
@@ -61,14 +65,14 @@ namespace TFAssetTools.Editor
             GUILayout.Label("(Tip: Select all the material files and drag them over the dropdown)");
             GUILayout.Space(5f);
 
-            //Shader Method
+            //ShaderType Method
             string[] options = new string[]
             {
                 "Standard", "Standard (Specular Setup)", "Titanfall 2 Standard"
             };
 
             //BATCH SETTING
-            Shader = EditorGUILayout.Popup("Expected Shader:", Shader, options);
+            ShaderType = EditorGUILayout.Popup("Expected Shader:", ShaderType, options);
 
             //Array field
             ScriptableObject scriptableObj = this;
@@ -100,13 +104,15 @@ namespace TFAssetTools.Editor
                 skipAlbedo = GUILayout.Toggle(skipAlbedo, "Skip Albedo maps");
                 skipNormal = GUILayout.Toggle(skipNormal, "Skip Normal maps");
                 skipSpecular = GUILayout.Toggle(skipSpecular, "Skip Specular maps");
-                if (Shader == 2) //Titanfall shader
+                if (ShaderType == 2) //Titanfall shader
                 {
                     skipGloss = GUILayout.Toggle(skipGloss, "Skip Gloss maps");
                     skipCavity = GUILayout.Toggle(skipCavity, "Skip Cavity maps");
                 }
                 skipEmission = GUILayout.Toggle(skipEmission, "Skip Emission maps");
                 skipAO = GUILayout.Toggle(skipAO, "Skip Occlusion maps");
+                if(ShaderType == 2)
+                    skipOpacity = GUILayout.Toggle(skipOpacity, "Skip Opacity Maps");
             }
 
             if (ChangeProperties)
@@ -114,8 +120,11 @@ namespace TFAssetTools.Editor
                 GUILayout.Label("Normal Intensity:");
                 OverrideNormal = EditorGUILayout.FloatField(OverrideNormal);
 
-                GUILayout.Label("Emission Intensity:");
-                OverrideEmission = EditorGUILayout.FloatField(OverrideEmission);
+                //GUILayout.Label("Emission Color:");
+                GUIContent colorTitle = new GUIContent("Emission Color");
+                glowCol = EditorGUILayout.ColorField(colorTitle, glowCol, true, false, true);
+                //GUILayout.Label("Emission Intensity:");
+                //OverrideEmission = EditorGUILayout.FloatField(OverrideEmission);
 
                 GUILayout.Label("Smoothness:");
                 OverrideSpecular = EditorGUILayout.Slider(OverrideSpecular, 0, 1);
@@ -168,7 +177,7 @@ namespace TFAssetTools.Editor
                     SetTexture(Mat, "_ilm", "_EmissionMap", skipEmission); //EmisisonTex
                     Mat.EnableKeyword("_EMISSION"); //Enables Emission
 
-                    if (Shader == 0) //Standard
+                    if (ShaderType == 0) //Standard
                     {
                         SetTexture(Mat, "_spc", "_MetallicGlossMap", skipSpecular);
                     }
@@ -177,7 +186,7 @@ namespace TFAssetTools.Editor
                         SetTexture(Mat, "_spc", "_SpecGlossMap", skipSpecular);
                     }
 
-                    if (Shader == 2) //TF|2
+                    if (ShaderType == 2) //TF|2
                     {
                         SetTexture(Mat, "_cav", "_Cav", skipCavity);    //  old shader
                         SetTexture(Mat, "_cav", "_ParallaxMap", skipCavity);    //  new shader
@@ -187,6 +196,7 @@ namespace TFAssetTools.Editor
 
                 if (ChangeProperties) //Parameter changing
                 {
+                    Mat.SetColor("_Color", Color.white);
                     if (!skipNormal) //Normal
                     {
                         Mat.SetFloat("_BumpScale", OverrideNormal);
@@ -194,13 +204,19 @@ namespace TFAssetTools.Editor
                     if (!skipSpecular) //Specular
                     {
                         Mat.SetFloat("_GlossMapScale", OverrideSpecular);
+                        Mat.SetFloat("_Glossiness", OverrideSpecular);
                     }
                     if (!skipEmission && CheckTexture(Mat, "_ilm"))
                     {
                         Mat.EnableKeyword("_EMISSION");
-                        Mat.SetColor("_EmissionColor", Color.white);
+                        Mat.SetColor("_EmissionColor", glowCol);
                         Mat.SetFloat("_EmissionIntensity", OverrideEmission);
                         Mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
+                    }
+                    if (!skipOpacity && CheckTexture(Mat, "_opa") && ShaderType == 2)
+                    {
+                        Mat.shader = Mat.shader == Shader.Find("TITANFALL/Standard") ? Shader.Find("Hidden/TITANFALL/Transparent/Standard") : Mat.shader == Shader.Find("TITANFALL/Standard Optimized") ? Shader.Find("Hidden/TITANFALL/Transparent/Standard Optimized") : Mat.shader;
+                        SetTexture(Mat, "_opa", "_Opacity", false);
                     }
                 }
                 //Editor progressbar popup
@@ -224,7 +240,7 @@ namespace TFAssetTools.Editor
                 var newDir = TextureDirectory + CurrentMat.name;
                 foreach (var folder in folders)
                 {
-                    if (Directory.GetFiles(folder, CurrentMat.name + "_col" + FileType).Length > 0) {
+                    if (Directory.GetFiles(folder, "*" + "_col" + FileType).Length > 0) {
                         //Debug.Log("Found subfolder!");
                         newDir = folder;
                         break;
@@ -264,7 +280,7 @@ namespace TFAssetTools.Editor
             var newDir = TextureDirectory + CurrentMat.name;
             foreach (var folder in folders)
             {
-                if (Directory.GetFiles(folder, CurrentMat.name + "_col" + FileType).Length > 0)
+                if (Directory.GetFiles(folder, "*" + "_col" + FileType).Length > 0)
                 {
                     //Debug.Log("Found subfolder!");
                     newDir = folder;
@@ -277,15 +293,10 @@ namespace TFAssetTools.Editor
             {
                 foreach(var file in Directory.GetFiles("" + newDir, "*" + FileType, SearchOption.TopDirectoryOnly))
                 {
-                    Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
-
-                    if (ThisTex.name.Contains(Identifier))
+                    if (Path.GetFileName(file).Contains(Identifier))
                     {
                         returnVal = true;
-                    }
-                    else
-                    {
-                        returnVal = false;
+                        break;
                     }
                 }
                 //Debug.Log(returnVal);

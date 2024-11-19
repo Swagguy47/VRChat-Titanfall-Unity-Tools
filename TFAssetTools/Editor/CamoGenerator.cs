@@ -180,7 +180,7 @@ public class CamoGenerator : EditorWindow
             //Debug.Log(path);
         }
 
-        GUILayout.Label("\nThis may take awhile if you inputted a lot\n of textures, so sit back and get cozy\n");
+        GUILayout.Label("\nThis may take a while if you inputted a lot\n of textures, so sit back and get cozy\n");
         
 //Annoying it has to be this complicated for a simple label but assuming the array has a length throws errors
         if (InputCamos != null && InputMasks != null && InputSkin31Albedos != null)

@@ -72,7 +72,7 @@ public class CamoAnimMaker : EditorWindow
         GUILayout.Space(75f);
 
 
-        GUILayout.Label("----AVANCED USERS ONLY----\n\nInput all generated camo materials in the same order as on\nthe specified mesh and this will create animations for all of them");
+        GUILayout.Label("----ADVANCED----\n\nInput all generated camo materials in the same order as on\nthe specified mesh and this will create animations for all of them");
         
         GUILayout.Space(10f);
 

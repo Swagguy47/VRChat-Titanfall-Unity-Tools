@@ -9,6 +9,6 @@ public class UpdateCheck : EditorWindow
     [MenuItem("Titanfall Asset Tools/--Resources--/Check For Tool Updates")]
     public static void ShowWindow()
     {
-        Application.OpenURL("https://github.com/Swagguy47/VRChat-Titanfall-Unity-Tools/releases");
+        Application.OpenURL("https://github.com/Swagguy47/VRChat-Titanfall-Unity-Tools/releases/latest");
     }
 }

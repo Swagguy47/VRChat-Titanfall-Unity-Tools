@@ -89,6 +89,7 @@ Shader "TITANFALL/Legacy/Transparent/Water"
             float2 uv_BlendMap;
             float2 uv_WaterNml;
             float2 uv_WaterMsk;
+            float4 vertColor;
         };
 
         half _Glossiness;
@@ -115,6 +116,11 @@ Shader "TITANFALL/Legacy/Transparent/Water"
         UNITY_INSTANCING_BUFFER_START(Props)
             // put more per-instance properties here
         UNITY_INSTANCING_BUFFER_END(Props)
+
+        void vert(inout appdata_full v, out Input o) {
+            UNITY_INITIALIZE_OUTPUT(Input, o);
+            o.vertColor = v.color;
+        }
 
         void surf (Input IN, inout SurfaceOutputStandardSpecular o)
         {
@@ -158,7 +164,7 @@ Shader "TITANFALL/Legacy/Transparent/Water"
             o.Normal = UnpackNormal(tex2D(_BumpMap, scrolledUV)) + (UnpackNormal(tex2D(_WaterNml, scrolledUV2 * 8)) * (tex2D(_BlendMap, scrolledUV3)));
             //Opacity
             //o.Emission = tex2D(_WaterMsk, IN.uv_WaterMsk);
-            o.Alpha = (c.a - (1 - tex2D(_Opacity, scrolledUV4 * 2))) * (1 - tex2D(_WaterMsk, IN.uv_WaterMsk).a) + _WaterOpa;
+            o.Alpha = (c.a - (1 - tex2D(_Opacity, scrolledUV4 * 2))) * (1 - tex2D(_WaterMsk, IN.uv_WaterMsk).a) + _WaterOpa * IN.vertColor.rgb;
         }
         ENDCG
     }

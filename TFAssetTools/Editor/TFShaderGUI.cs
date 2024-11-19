@@ -11,6 +11,22 @@ public class TFShaderUtils : Editor
         Transparent = 1,
     }
 
+    public enum TerrainShaderTypes
+    {
+        OneChannel = 0,
+        TwoChannels = 1,
+        ThreeChannels = 2,
+        Transparent = 3,
+        Debug = 4,
+    }
+
+    public static string[] shaderNames = {
+            "TITANFALL/Terrain",
+            "Hidden/TITANFALL/Terrain (Two Blends)",
+            "Hidden/TITANFALL/Terrain (Three Blends)",
+            "Hidden/TITANFALL/Terrain (Transparent)",
+            "Hidden/TITANFALL/VColDebug" };
+
     public static void UnOptimizeShader(string shader, MaterialEditor editor, MaterialProperty[] properties)
     {
         //  Get output
@@ -88,6 +104,58 @@ public class TFShaderUtils : Editor
         //  SetTexture is obsolete
         editor.SetTexture(name, value);
 #pragma warning restore 
+    }
+
+    public static void OptimizeShaderFromMat(Shader to, Material mat)
+    {
+        //  get textures
+        string[] properties = mat.GetTexturePropertyNames();
+
+        Texture2D gls = null, cav = null, ao = null;
+        for (int i = 0; i < properties.Length; i++)
+        {
+            switch (properties[i])
+            {
+                case "_GlossMap":
+                    {
+                        gls = (Texture2D)mat.GetTexture(properties[i]);
+                        break;
+                    }
+                case "_ParallaxMap":
+                    {
+                        cav = (Texture2D)mat.GetTexture(properties[i]);
+                        break;
+                    }
+                case "_OcclusionMap":
+                    {
+                        ao = (Texture2D)mat.GetTexture(properties[i]);
+                        break;
+                    }
+            }
+        }
+
+        //  ensure texture readability
+        FixInput(gls);
+        FixInput(cav);
+        FixInput(ao);
+
+        Texture2D scaler = null;
+        scaler = gls ? gls : cav ? cav : ao ? ao : null;
+
+        if (!scaler)
+        {
+            Debug.LogWarning("No textures to pack! Aborting");
+            return;
+        }
+
+        //  output path
+        string path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(scaler)) + "/PackedTex.jpg";
+
+        Texture2D atlas = PackTextures(gls, cav, ao, path, scaler);
+
+        //  swap shader
+        mat.shader = to;
+        mat.SetTexture("_Atlas", atlas);
     }
 
     public static void OptimizeShader(Shader to, MaterialEditor editor, MaterialProperty[] properties)
@@ -186,7 +254,7 @@ public class TFShaderUtils : Editor
 
         for(int i = 0; i < width * height; i++)
         {
-            cols[i] = new Color( gls ? gls.GetPixel(i % width, i / width).r : 0, cav ? cav.GetPixel(i % width, i / width).r : 0, ao ? ao.GetPixel(i % width, i / width).r : 0);
+            cols[i] = new Color( gls ? gls.GetPixel(i % width, i / width).r : 0.5f, cav ? cav.GetPixel(i % width, i / width).r : 1, ao ? ao.GetPixel(i % width, i / width).r : 1);
         }
 
         atlas.SetPixels(cols);
@@ -240,6 +308,26 @@ public class TFShaderUtils : Editor
         GUI.DrawTexture(rect, ness, ScaleMode.ScaleToFit);
     }
 
+    public static void TerrainHelper()
+    {
+        GUILayout.Label("(Blending is determined by mesh vertex colors)");
+    }
+
+    public static void DrawHeader()
+    {
+        Texture ness = (Texture)AssetDatabase.LoadAssetAtPath("Assets/TFAssetTools/Editor/TFToolsBanner.png", typeof(Texture));
+
+        if (ness == null)
+            return;
+
+        float imageWidth = EditorGUIUtility.currentViewWidth - 40;
+        float imageHeight = imageWidth * ness.height / ness.width / 2.5f;
+
+        Rect rect = GUILayoutUtility.GetRect(imageWidth, imageHeight);
+
+        GUI.DrawTexture(rect, ness, ScaleMode.ScaleToFit);
+    }
+
     public static void DrawShaderTypes(string opposite, MaterialEditor editor)
     {
         GUILayout.Label("Rendering Mode:");
@@ -255,13 +343,35 @@ public class TFShaderUtils : Editor
         else if (type == TFShaderUtils.ShaderTypes.Opaque && !isOpaque)
             TFShaderUtils.ChangeShader(opposite, editor);
     }
+
+    public static void DrawTerrainShaderTypes(string current, MaterialEditor editor)
+    {
+        GUILayout.Label("Rendering Mode:");
+
+        var currentType = 0;
+
+        //  switch statement replaced
+        for(int i = 0; i < shaderNames.Length; i++)
+            if(current == shaderNames[i])
+            {
+                currentType = i;
+                break;
+            }
+
+        TFShaderUtils.TerrainShaderTypes type = (TFShaderUtils.TerrainShaderTypes)(currentType);
+
+        type = (TFShaderUtils.TerrainShaderTypes)EditorGUILayout.EnumPopup(type);
+
+        if ((int)type != currentType)
+            TFShaderUtils.ChangeShader(shaderNames[(int)type], editor);
+    }
 }
 
 public class TFShaderGUI : ShaderGUI
 {
     public override void OnGUI (MaterialEditor materialEditor, MaterialProperty[] properties)
     {
-        // Shader GUI  
+        // ShaderType GUI  
         TFShaderUtils.DrawShaderTypes("Hidden/TITANFALL/Transparent/Standard", materialEditor);
 
         base.OnGUI(materialEditor, properties);
@@ -276,11 +386,21 @@ public class TFShaderGUI : ShaderGUI
     }
 }
 
+public class TFShaderGUIBasic : ShaderGUI
+{
+    public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        base.OnGUI(materialEditor, properties);
+
+        TFShaderUtils.DrawNess();
+    }
+}
+
 public class TFShaderGUIT : ShaderGUI
 {
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
-        // Shader GUI
+        // ShaderType GUI
         TFShaderUtils.DrawShaderTypes("TITANFALL/Standard", materialEditor);
 
         base.OnGUI(materialEditor, properties);
@@ -299,7 +419,7 @@ public class OTFShaderGUI : ShaderGUI
 {
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
-        // Shader GUI
+        // ShaderType GUI
         TFShaderUtils.DrawShaderTypes("Hidden/TITANFALL/Transparent/Standard Optimized", materialEditor);
 
         base.OnGUI(materialEditor, properties);
@@ -317,7 +437,7 @@ public class OTFShaderGUIT : ShaderGUI
 {
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
-        // Shader GUI
+        // ShaderType GUI
         TFShaderUtils.DrawShaderTypes("TITANFALL/Standard Optimized", materialEditor);
 
         base.OnGUI(materialEditor, properties);
@@ -329,5 +449,75 @@ public class OTFShaderGUIT : ShaderGUI
             TFShaderUtils.UnOptimizeShader("Hidden/TITANFALL/Transparent/Standard", materialEditor, properties);
             //TFShaderUtils.OptimizeShader(optimized, materialEditor, properties);
         }
+    }
+}
+
+public class T0_TFShaderGUI : ShaderGUI
+{
+    public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        // ShaderType GUI  
+        TFShaderUtils.DrawTerrainShaderTypes(TFShaderUtils.shaderNames[0], materialEditor);
+        TFShaderUtils.TerrainHelper();
+
+        base.OnGUI(materialEditor, properties);
+
+        TFShaderUtils.DrawNess();
+    }
+}
+
+public class T1_TFShaderGUI : ShaderGUI
+{
+    public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        // ShaderType GUI  
+        TFShaderUtils.DrawTerrainShaderTypes(TFShaderUtils.shaderNames[1], materialEditor);
+        TFShaderUtils.TerrainHelper();
+
+        base.OnGUI(materialEditor, properties);
+
+        TFShaderUtils.DrawNess();
+    }
+}
+
+public class T2_TFShaderGUI : ShaderGUI
+{
+    public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        // ShaderType GUI  
+        TFShaderUtils.DrawTerrainShaderTypes(TFShaderUtils.shaderNames[2], materialEditor);
+        TFShaderUtils.TerrainHelper();
+
+        base.OnGUI(materialEditor, properties);
+
+        TFShaderUtils.DrawNess();
+    }
+}
+
+public class T3_TFShaderGUI : ShaderGUI
+{
+    public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        // ShaderType GUI  
+        TFShaderUtils.DrawTerrainShaderTypes(TFShaderUtils.shaderNames[3], materialEditor);
+        TFShaderUtils.TerrainHelper();
+
+        base.OnGUI(materialEditor, properties);
+
+        TFShaderUtils.DrawNess();
+    }
+}
+
+public class T4_TFShaderGUI : ShaderGUI
+{
+    public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        // ShaderType GUI  
+        TFShaderUtils.DrawTerrainShaderTypes(TFShaderUtils.shaderNames[4], materialEditor);
+        TFShaderUtils.TerrainHelper();
+
+        base.OnGUI(materialEditor, properties);
+
+        TFShaderUtils.DrawNess();
     }
 }

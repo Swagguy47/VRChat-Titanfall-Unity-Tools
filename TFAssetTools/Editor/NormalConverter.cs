@@ -328,7 +328,6 @@ public class NormalConverter : EditorWindow
 
     }
 
-
     public void BatchConvert()
     {
         Progress = 0;

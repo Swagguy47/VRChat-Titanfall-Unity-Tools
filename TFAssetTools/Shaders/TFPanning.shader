@@ -1,14 +1,14 @@
-// Upgrade NOTE: upgraded instancing buffer 'TITANFALLStandard' to new syntax.
+// Upgrade NOTE: upgraded instancing buffer 'TITANFALLPanning' to new syntax.
 
 // Made with Amplify Shader Editor v1.9.1.5
 // Available at the Unity Asset Store - http://u3d.as/y3X 
-Shader "TITANFALL/Standard"
+Shader "TITANFALL/Panning"
 {
 	Properties
 	{
 		[Header(________________________________________________________________________________________________)][Header(Surface)]_Color("Color", Color) = (1,1,1,1)
 		[SingleLineTexture]_MainTex("_Col", 2D) = "white" {}
-		_Tiling("Tiling | Offset", Vector) = (1,1,0,0)
+		_Tiling("Tiling | Speed", Vector) = (1,1,0,0)
 		[Header(________________________________________________________________________________________________)][Header(Lighting)][SingleLineTexture]_BumpMap("_Nml", 2D) = "bump" {}
 		_NormalScale("NormalScale", Float) = 1
 		[SingleLineTexture]_SpecGlossMap("_Spec", 2D) = "black" {}
@@ -24,7 +24,7 @@ Shader "TITANFALL/Standard"
 		_DetailBumpStrength("Normal Strength", Float) = 1
 		[SingleLineTexture]_CamoSpc("Detail Specular", 2D) = "black" {}
 		[SingleLineTexture]_CamoGls("Detail Gloss", 2D) = "black" {}
-		_DetailTiling("Tiling | Offset", Vector) = (1,1,0,0)
+		_DetailTiling("Tiling | Speed", Vector) = (1,1,0,0)
 		[Header(________________________________________________________________________________________________)][Header(Extras)][Enum(Both,0,Back,1,Front,2)]_CullMode("CullMode", Int) = 2
 		_DepthOffset("DepthOffset", Int) = 0
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
@@ -40,6 +40,7 @@ Shader "TITANFALL/Standard"
 		
 		CGPROGRAM
 		#include "UnityStandardUtils.cginc"
+		#include "UnityShaderVariables.cginc"
 		#pragma target 3.0
 		#pragma multi_compile_instancing
 		#pragma surface surf StandardSpecular keepalpha addshadow fullforwardshadows 
@@ -61,42 +62,44 @@ Shader "TITANFALL/Standard"
 		uniform sampler2D _GlossMap;
 		uniform sampler2D _CamoGls;
 
-		UNITY_INSTANCING_BUFFER_START(TITANFALLStandard)
+		UNITY_INSTANCING_BUFFER_START(TITANFALLPanning)
 			UNITY_DEFINE_INSTANCED_PROP(float4, _Tiling)
-#define _Tiling_arr TITANFALLStandard
+#define _Tiling_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(float4, _DetailTiling)
-#define _DetailTiling_arr TITANFALLStandard
+#define _DetailTiling_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
-#define _Color_arr TITANFALLStandard
+#define _Color_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
-#define _EmissionColor_arr TITANFALLStandard
+#define _EmissionColor_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(int, _DepthOffset)
-#define _DepthOffset_arr TITANFALLStandard
+#define _DepthOffset_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(int, _CullMode)
-#define _CullMode_arr TITANFALLStandard
+#define _CullMode_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(float, _NormalScale)
-#define _NormalScale_arr TITANFALLStandard
+#define _NormalScale_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(float, _DetailBumpStrength)
-#define _DetailBumpStrength_arr TITANFALLStandard
+#define _DetailBumpStrength_arr TITANFALLPanning
 			UNITY_DEFINE_INSTANCED_PROP(float, _Glossiness)
-#define _Glossiness_arr TITANFALLStandard
-		UNITY_INSTANCING_BUFFER_END(TITANFALLStandard)
+#define _Glossiness_arr TITANFALLPanning
+		UNITY_INSTANCING_BUFFER_END(TITANFALLPanning)
 
 		void surf( Input i , inout SurfaceOutputStandardSpecular o )
 		{
 			int _DepthOffset_Instance = UNITY_ACCESS_INSTANCED_PROP(_DepthOffset_arr, _DepthOffset);
 			int _CullMode_Instance = UNITY_ACCESS_INSTANCED_PROP(_CullMode_arr, _CullMode);
 			float4 _Tiling_Instance = UNITY_ACCESS_INSTANCED_PROP(_Tiling_arr, _Tiling);
-			float2 appendResult105 = (float2(_Tiling_Instance.x , _Tiling_Instance.y));
 			float2 appendResult106 = (float2(_Tiling_Instance.z , _Tiling_Instance.w));
-			float2 uv_TexCoord107 = i.uv_texcoord * appendResult105 + appendResult106;
-			float2 MainUV108 = uv_TexCoord107;
+			float2 appendResult105 = (float2(_Tiling_Instance.x , _Tiling_Instance.y));
+			float2 uv_TexCoord107 = i.uv_texcoord * appendResult105;
+			float2 panner165 = ( 1.0 * _Time.y * appendResult106 + uv_TexCoord107);
+			float2 MainUV108 = panner165;
 			float _NormalScale_Instance = UNITY_ACCESS_INSTANCED_PROP(_NormalScale_arr, _NormalScale);
 			float4 _DetailTiling_Instance = UNITY_ACCESS_INSTANCED_PROP(_DetailTiling_arr, _DetailTiling);
-			float2 appendResult109 = (float2(_DetailTiling_Instance.x , _DetailTiling_Instance.y));
 			float2 appendResult110 = (float2(_DetailTiling_Instance.z , _DetailTiling_Instance.w));
-			float2 uv_TexCoord111 = i.uv_texcoord * appendResult109 + appendResult110;
-			float2 DetailUV112 = uv_TexCoord111;
+			float2 appendResult109 = (float2(_DetailTiling_Instance.x , _DetailTiling_Instance.y));
+			float2 uv_TexCoord111 = i.uv_texcoord * appendResult109;
+			float2 panner166 = ( 1.0 * _Time.y * appendResult110 + uv_TexCoord111);
+			float2 DetailUV112 = panner166;
 			float _DetailBumpStrength_Instance = UNITY_ACCESS_INSTANCED_PROP(_DetailBumpStrength_arr, _DetailBumpStrength);
 			float3 DetailBump73 = UnpackScaleNormal( tex2D( _DetailNormalMap, DetailUV112 ), _DetailBumpStrength_Instance );
 			float3 Normal16 = BlendNormals( UnpackScaleNormal( tex2D( _BumpMap, MainUV108 ), _NormalScale_Instance ) , DetailBump73 );
@@ -130,7 +133,7 @@ Shader "TITANFALL/Standard"
 		ENDCG
 	}
 	Fallback "Diffuse"
-	CustomEditor "TFShaderGUI"
+	CustomEditor "TFShaderGUIBasic"
 }
 /*ASEBEGIN
 Version=19105
@@ -196,17 +199,13 @@ Node;AmplifyShaderEditor.SamplerNode;19;-1552,-128;Inherit;True;Property;_GlossM
 Node;AmplifyShaderEditor.SamplerNode;1;-2471.198,-542.9304;Inherit;True;Property;_MainTex;_Col;1;1;[SingleLineTexture];Create;False;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.ColorNode;6;-1584,-464;Inherit;False;InstancedProperty;_Color;Color;0;1;[Header];Create;True;2;________________________________________________________________________________________________;Surface;0;0;False;0;False;1,1,1,1;1,1,1,1;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;22;-2455.198,-126.9304;Inherit;True;Property;_EmissionMap;_Ilm;10;2;[Header];[SingleLineTexture];Create;False;2;________________________________________________________________________________________________;Emission;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.CommentaryNode;104;-1556.222,1122.721;Inherit;False;851.3975;645.8995;Tiling;10;114;113;112;111;110;109;108;107;106;105;;0,0,0,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode;104;-1556.222,1122.721;Inherit;False;851.3975;645.8995;Tiling;12;114;113;112;111;110;109;108;107;106;105;165;166;;0,0,0,1;0;0
 Node;AmplifyShaderEditor.DynamicAppendNode;105;-1328.825,1172.721;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.DynamicAppendNode;106;-1328.825,1284.721;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.TextureCoordinatesNode;107;-1140.234,1191.478;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RegisterLocalVarNode;108;-928.8245,1188.721;Inherit;False;MainUV;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.DynamicAppendNode;109;-1330.222,1521.621;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.DynamicAppendNode;110;-1330.222,1633.621;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.TextureCoordinatesNode;111;-1138.222,1537.621;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RegisterLocalVarNode;112;-930.222,1537.621;Inherit;False;DetailUV;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.Vector4Node;113;-1504.825,1188.721;Inherit;False;InstancedProperty;_Tiling;Tiling | Offset;2;0;Create;False;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.Vector4Node;114;-1506.222,1537.621;Inherit;False;InstancedProperty;_DetailTiling;Tiling | Offset;18;0;Create;False;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.GetLocalVarNode;115;-2640,-528;Inherit;False;108;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.GetLocalVarNode;116;-2624,-112;Inherit;False;108;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.GetLocalVarNode;117;-2624,432;Inherit;False;108;MainUV;1;0;OBJECT;;False;1;FLOAT2;0
@@ -223,7 +222,7 @@ Node;AmplifyShaderEditor.RegisterLocalVarNode;134;-1216,208;Inherit;False;smooth
 Node;AmplifyShaderEditor.GetLocalVarNode;45;-640,176;Inherit;False;43;Specular;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.GetLocalVarNode;42;-640,240;Inherit;False;41;Gloss;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.GetLocalVarNode;65;-640,304;Inherit;False;32;Ao;1;0;OBJECT;;False;1;COLOR;0
-Node;AmplifyShaderEditor.StandardSurfaceOutputNode;0;-256,-16;Float;False;True;-1;2;TFShaderGUI;0;0;StandardSpecular;TITANFALL/Standard;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;False;False;False;False;False;False;Back;0;False;;0;False;;True;0;True;_DepthOffset;0;False;_DepthOffset;False;0;Opaque;0.5;True;True;0;False;Opaque;;Geometry;All;12;all;True;True;True;True;0;False;;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;2;15;10;25;False;0.5;True;2;5;False;;10;False;;0;0;False;;0;False;;0;False;;0;False;;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;-1;-1;-1;-1;0;False;0;0;True;_CullMode;-1;0;True;_AlphaClip;0;0;0;False;0.1;False;;0;False;;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.StandardSurfaceOutputNode;0;-256,-16;Float;False;True;-1;2;TFShaderGUIBasic;0;0;StandardSpecular;TITANFALL/Panning;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;False;False;False;False;False;False;Back;0;False;;0;False;;True;0;True;_DepthOffset;0;False;_DepthOffset;False;0;Opaque;0.5;True;True;0;False;Opaque;;Geometry;All;12;all;True;True;True;True;0;False;;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;2;15;10;25;False;0.5;True;2;5;False;;10;False;;0;0;False;;0;False;;0;False;;0;False;;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;-1;-1;-1;-1;0;False;0;0;True;_CullMode;-1;0;True;_AlphaClip;0;0;0;False;0.1;False;;0;False;;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
 Node;AmplifyShaderEditor.GetLocalVarNode;17;-640,-16;Inherit;False;16;Normal;1;0;OBJECT;;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.GetLocalVarNode;27;-640,48;Inherit;False;26;Emisision;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.GetLocalVarNode;49;-640,-80;Inherit;False;48;Color;1;0;OBJECT;;False;1;COLOR;0
@@ -253,6 +252,12 @@ Node;AmplifyShaderEditor.BreakToComponentsNode;160;-2852.581,-1649.886;Inherit;F
 Node;AmplifyShaderEditor.SimpleAddOpNode;161;-2452.58,-1553.886;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;162;-2340.58,-1457.886;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.ViewDirInputsCoordNode;131;-2164.58,-1329.886;Inherit;False;World;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.Vector4Node;113;-1504.825,1188.721;Inherit;False;InstancedProperty;_Tiling;Tiling | Speed;2;0;Create;False;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.Vector4Node;114;-1506.222,1537.621;Inherit;False;InstancedProperty;_DetailTiling;Tiling | Speed;18;0;Create;False;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RegisterLocalVarNode;108;-882.8245,1189.721;Inherit;False;MainUV;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;112;-878.222,1539.621;Inherit;False;DetailUV;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.PannerNode;166;-944,1648;Inherit;False;3;0;FLOAT2;0,0;False;2;FLOAT2;0,0;False;1;FLOAT;1;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.PannerNode;165;-944,1312;Inherit;False;3;0;FLOAT2;0,0;False;2;FLOAT2;0,0;False;1;FLOAT;1;False;1;FLOAT2;0
 WireConnection;23;0;22;0
 WireConnection;23;1;25;0
 WireConnection;26;0;23;0
@@ -307,15 +312,11 @@ WireConnection;105;1;113;2
 WireConnection;106;0;113;3
 WireConnection;106;1;113;4
 WireConnection;107;0;105;0
-WireConnection;107;1;106;0
-WireConnection;108;0;107;0
 WireConnection;109;0;114;1
 WireConnection;109;1;114;2
 WireConnection;110;0;114;3
 WireConnection;110;1;114;4
 WireConnection;111;0;109;0
-WireConnection;111;1;110;0
-WireConnection;112;0;111;0
 WireConnection;59;1;123;0
 WireConnection;62;1;122;0
 WireConnection;134;0;21;0
@@ -354,5 +355,11 @@ WireConnection;161;0;152;0
 WireConnection;161;1;153;0
 WireConnection;162;0;161;0
 WireConnection;162;1;154;0
+WireConnection;108;0;165;0
+WireConnection;112;0;166;0
+WireConnection;166;0;111;0
+WireConnection;166;2;110;0
+WireConnection;165;0;107;0
+WireConnection;165;2;106;0
 ASEEND*/
-//CHKSM=CA5504B9290BD60CE961FD9298CE6995E589C8F4
+//CHKSM=97E0D21883C256FFC33616EA3EF415CEB17DE60E

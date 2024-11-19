@@ -17,7 +17,7 @@ public class InstanceImport : EditorWindow
     public string ErrorList = "", ProgName = "";
     public bool FastMode;
 
-    [MenuItem("Titanfall Asset Tools/Maps/Prop Instancer")]
+    [MenuItem("Titanfall Asset Tools/Maps/Prop Instancer (Legacy)")]
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(InstanceImport));
@@ -66,6 +66,8 @@ public class InstanceImport : EditorWindow
         {
             ParseInstances();
         }
+
+        GUILayout.Label("Note:\nThis tool has become redundant with the addition of\nthe mprt importer. For a faster workflow use that instead.");
     }
 
     private void SelectedCSV()

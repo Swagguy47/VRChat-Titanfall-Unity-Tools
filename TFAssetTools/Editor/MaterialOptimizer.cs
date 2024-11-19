@@ -25,13 +25,15 @@ public class MaterialOptimizer : EditorWindow
 
     public bool JpegAlbedos = false;
 
+    public bool PackTFAtlas = true;
+
     public Material[] MaterialsToCompress;
 
     //UI Scrolling
     public Vector2 scrollPos;
 
     public float Progress;
-    public int Step;
+    public int Step, MaxStep;
 
     private string path //To get input normal asset path
     {
@@ -96,6 +98,7 @@ public class MaterialOptimizer : EditorWindow
             QualityLevel = GUILayout.HorizontalSlider(QualityLevel, 0, 100);
             GUILayout.Space(15f);
         }
+        PackTFAtlas = GUILayout.Toggle(PackTFAtlas, "Pack GLS, AO & CAV maps into a single texture (Requires Titanfall Shader)");
         JpegMaps = GUILayout.Toggle(JpegMaps, "Convert all extra maps to jpegs (Lossy)");
         JpegAlbedos = GUILayout.Toggle(JpegAlbedos, "Convert all opaque albedos to jpegs (Lossy)");
         if (JpegAlbedos || JpegMaps)
@@ -136,109 +139,77 @@ public class MaterialOptimizer : EditorWindow
         {
             //Progress display
             Progress++;
-            Step = 1;
+            Step = 0;
             UpdateProgress();
 
-            //Albedo
-            if (CurrentMat.GetTexture("_MainTex") != null)
+            string[] properties = CurrentMat.GetTexturePropertyNames();
+
+            MaxStep = properties.Length;
+
+            for (int i = 0; i< properties.Length; i++)
             {
-                NowAlbedo = true;
-                InputNormal = CurrentMat.GetTexture("_MainTex") as Texture2D;
-                PackTextures();
-                NowAlbedo = false;
-                CurrentMat.SetTexture("_MainTex", Output);
+                //Debug.Log(properties[i] + " == _MainTex : " + properties[i] == "_MainTex");
+                
+                Shader swapShader = CurrentMat.shader == Shader.Find("TITANFALL/Standard") ? Shader.Find("TITANFALL/Standard Optimized") : CurrentMat.shader == Shader.Find("Hidden/TITANFALL/Transparent/Standard") ? Shader.Find("Hidden/TITANFALL/Transparent/Standard Optimized") : null;
+
+                if (swapShader != null) {
+                    TFShaderUtils.OptimizeShaderFromMat(swapShader, CurrentMat);
+                }
+
+                OptimizeTex(properties[i], CurrentMat, properties[i] == "_MainTex");
+                UpdateProgress();
             }
-            Step++;
+/*
+            //Albedo
+            OptimizeTex("_MainTex", CurrentMat, true);
             UpdateProgress();
             //Normal
-            if (CurrentMat.GetTexture("_BumpMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_BumpMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_BumpMap", Output);
-            }
-            Step++;
+            OptimizeTex("_BumpMap", CurrentMat, false);
             UpdateProgress();
             //Metallic
-            if (CurrentMat.GetTexture("_MetallicGlossMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_MetallicGlossMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_MetallicGlossMap", Output);
-            }
-            //Skip doing a step here since specular/specular standard only have one of each
-
+            OptimizeTex("_MetallicGlossMap", CurrentMat, false);    //  skip progress update since you can't have both metallic & spec
             //Specular
-            if (CurrentMat.GetTexture("_SpecGlossMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_SpecGlossMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_SpecGlossMap", Output);
-            }
-            Step++;
+            OptimizeTex("_SpecGlossMap", CurrentMat, false);
             UpdateProgress();
             //AO
-            if (CurrentMat.GetTexture("_OcclusionMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_OcclusionMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_OcclusionMap", Output);
-            }
-            Step++;
+            OptimizeTex("_OcclusionMap", CurrentMat, false);
             UpdateProgress();
             //Height
-            if (CurrentMat.GetTexture("_ParallaxMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_ParallaxMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_ParallaxMap", Output);
-            }
-            Step++;
+            OptimizeTex("_ParallaxMap", CurrentMat, false);
             UpdateProgress();
             //Emission
-            if (CurrentMat.GetTexture("_EmissionMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_EmissionMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_EmissionMap", Output);
-            }
-            Step++;
+            OptimizeTex("_EmissionMap", CurrentMat, false);
             UpdateProgress();
             //Detail Mask
-            if (CurrentMat.GetTexture("_DetailMask") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_DetailMask") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_DetailMask", Output);
-            }
-            Step++;
+            OptimizeTex("_DetailMask", CurrentMat, false);
             UpdateProgress();
             //Detail Albedo
-            if (CurrentMat.GetTexture("_DetailAlbedoMap") != null)
-            {
-                //Lets not actually treat this like an albedo
-                InputNormal = CurrentMat.GetTexture("_DetailAlbedoMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_DetailAlbedoMap", Output);
-            }
-            Step++;
+            OptimizeTex("_DetailAlbedoMap", CurrentMat, false);
             UpdateProgress();
             //Detail Normal
-            if (CurrentMat.GetTexture("_DetailNormalMap") != null)
-            {
-                InputNormal = CurrentMat.GetTexture("_DetailNormalMap") as Texture2D;
-                PackTextures();
-                CurrentMat.SetTexture("_DetailNormalMap", Output);
-            }
+            OptimizeTex("_DetailNormalMap", CurrentMat, false);*/
         }
 
         EditorUtility.ClearProgressBar();
         Debug.Log("<color=lime>PROCESSING COMPLETE!</color> <color=white>" + MaterialsToCompress.Length + " MATERIALS COMPRESSED!</color>");
     }
 
+    void OptimizeTex(string propertyName, Material currentMat, bool albedo)
+    {
+        if (currentMat.GetTexture(propertyName) != null)
+        {
+            if (albedo)
+                NowAlbedo = true;
+            InputNormal = currentMat.GetTexture(propertyName) as Texture2D;
+            PackTextures(currentMat);
+            NowAlbedo = false;
+            currentMat.SetTexture(propertyName, Output);
+        }
+    }
+
 
     //Copied from NormalMapConverter as template
-    private void PackTextures()//Start of conversion process
+    private void PackTextures(Material currentMat)//Start of conversion process
     {
         if (InputNormal != null)
         {
@@ -253,7 +224,7 @@ public class MaterialOptimizer : EditorWindow
         maskMap = InputNormal;
 
         //Chooses if to convert map to jpeg depending on map type and whether albedo is transparent if its an albedo
-        if ((NowAlbedo && MaterialsToCompress[Mathf.RoundToInt(Progress)].renderQueue < 2450 && JpegAlbedos) || (!NowAlbedo && JpegMaps))
+        if ((NowAlbedo && currentMat.renderQueue < 2450 && JpegAlbedos) || (!NowAlbedo && JpegMaps))
         {
             CompressAsJpeg();
         }
@@ -348,6 +319,7 @@ public class MaterialOptimizer : EditorWindow
 
     private void UpdateProgress()
     {
-        EditorUtility.DisplayProgressBar("Processing Textures, this will take a while.", "Compressed (" + Progress + " / " + MaterialsToCompress.Length + ") Sub Step: (" + Step + " / 9)", Progress / MaterialsToCompress.Length);
+        Step++;
+        EditorUtility.DisplayProgressBar("Processing Textures, this will take a while.", "Compressed (" + Progress + " / " + MaterialsToCompress.Length + ") Sub Step: (" + Step + " / "+ MaxStep +")", Progress / MaterialsToCompress.Length);
     }
 }
