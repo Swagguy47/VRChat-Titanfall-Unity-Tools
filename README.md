@@ -5,10 +5,13 @@ Adds Titanfall 2-style shaders, and new editor functionality targeting roadblock
 
 Guide:
 https://youtu.be/XUO1OT2Eres
+<p align="center">
 
 ![image](https://github.com/user-attachments/assets/ea5ccba3-3480-4ce9-abe9-16cfc6c1c178)
 
 ![AngelCityZoomout](https://github.com/Swagguy47/VRChat-Titanfall-Unity-Tools/assets/67041649/9af02fd7-f12f-495f-90a3-c87a0840fa48)
+
+![image](https://github.com/user-attachments/assets/e513f5b8-7515-49d0-a6a5-8bc61ff3b640)
 
 ![image](https://github.com/user-attachments/assets/1f93c4e9-e0b4-43e3-87a8-c1ba55619dbb)
 
@@ -17,3 +20,4 @@ https://youtu.be/XUO1OT2Eres
 https://github.com/user-attachments/assets/2d370694-308b-4285-bc94-dabbbc0c9dbe
 
 ![CamoGenDemo](https://user-images.githubusercontent.com/67041649/193712416-7f4d1ca6-3fa0-488e-a477-6f6e98ac333f.jpg)
+</p>
