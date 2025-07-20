@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -32,6 +33,7 @@ namespace TFAssetTools.Editor
         private bool skipGloss;
         private bool skipCavity;
         private bool skipOpacity;
+        bool r1Textures = true;
 
         private float OverrideNormal = 1;
         [Range(0,1)] private float OverrideSpecular = 0.6f;
@@ -41,6 +43,9 @@ namespace TFAssetTools.Editor
 
         [ColorUsage(false, true)]
         private Color glowCol = Color.white * 6;
+
+        //  key for material value for relevant paths
+        Dictionary<string, List<string>> sortedTextures = new();
 
         [MenuItem("Titanfall Asset Tools/Materials/Auto Texture Materials")]
         public static void ShowWindow()
@@ -134,6 +139,7 @@ namespace TFAssetTools.Editor
                 GUILayout.Space(30f);
             }
 
+            r1Textures = GUILayout.Toggle(r1Textures, "Sort Loose Textures (Titanfall 1 & Online Support)");
             NarrowSearch = GUILayout.Toggle(NarrowSearch, "Specific Texture Search (Not Recommended)");
             GUILayout.Space(5f);
 
@@ -166,14 +172,23 @@ namespace TFAssetTools.Editor
             Debug.Log("Setting up materials...");
             Progress = 0;
 
+            if (r1Textures)
+            {
+                SortTextures();
+            }
+
             foreach (Material Mat in InputMaterials)
             {
+                if (Mat == null)
+                    continue;
+
                 if (ChangeTex) //Texture Changing
                 {
                     //Universal Textures
                     SetTexture(Mat, "_col", "_MainTex", skipAlbedo); //Albedo
                     SetTexture(Mat, "_nml", "_BumpMap", skipNormal); //Normal
                     SetTexture(Mat, "_ao", "_OcclusionMap", skipAO); //AO
+                    SetTexture(Mat, "_glw", "_EmissionMap", skipEmission); //R1 EmisisonTex
                     SetTexture(Mat, "_ilm", "_EmissionMap", skipEmission); //EmisisonTex
                     Mat.EnableKeyword("_EMISSION"); //Enables Emission
 
@@ -257,12 +272,29 @@ namespace TFAssetTools.Editor
                     FindTextures(CurrentMat, Identifier, ShaderName, Toggler, "_colpass", newDir);
                     //Debug.Log(TextureDirectory + CurrentMat.name + "_colpass EXISTS! Grabbing: " + Identifier);
                 }
+                else if (sortedTextures.ContainsKey(CurrentMat.name))
+                {
+                    FindTexturesR1(CurrentMat, Identifier, ShaderName);
+                }
             }
         }
 
         private void FindTextures(Material CurrentMat, string Identifier, string ShaderName, bool Toggler, string PathAppend, string Dir)
         {
             foreach (var file in Directory.GetFiles(Dir + PathAppend, "*" + FileType, SearchOption.TopDirectoryOnly))
+            {
+                Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
+
+                if (ThisTex.name.Contains(Identifier))
+                {
+                    CurrentMat.SetTexture(ShaderName, ThisTex);
+                }
+            }
+        }
+
+        private void FindTexturesR1(Material CurrentMat, string Identifier, string ShaderName)
+        {
+            foreach (var file in sortedTextures[CurrentMat.name])
             {
                 Texture ThisTex = (Texture)AssetDatabase.LoadAssetAtPath(file, typeof(Texture));
 
@@ -302,6 +334,49 @@ namespace TFAssetTools.Editor
                 //Debug.Log(returnVal);
             }
             return returnVal;
+        }
+
+        //  Titanfall 1 loose texture support
+        private void SortTextures()
+        {
+            sortedTextures.Clear();
+            string[] files = Directory.GetFiles(TextureDirectory, "*.*", SearchOption.AllDirectories);
+
+            foreach (string filePath in files)
+            {
+                string extension = Path.GetExtension(filePath).ToLower();
+
+                if (extension == FileType)
+                {
+                    string matName = Path.GetFileNameWithoutExtension(filePath);
+                    string assetPath = filePath.Replace(Application.dataPath, "").Replace("\\", "/");
+
+                    //  check for identifier and remove it
+                    var splitName = matName.Split("_");
+                    try
+                    {
+                        if (splitName[splitName.Length - 1].Length == 3)
+                        {
+                            matName = matName.Substring(0, matName.Length - 4);
+                        }
+                    }
+                    catch { }
+
+                    if (sortedTextures.ContainsKey(matName))
+                    {
+                        sortedTextures[matName].Add(assetPath);
+                        //Debug.Log($"Found! {matName} | {assetPath}");
+                    }
+                    else
+                    {
+                        var list = new List<string>();
+                        list.Add(assetPath);
+                        //Debug.Log($"Added to! {matName} | {assetPath}");
+
+                        sortedTextures[matName] = list;
+                    }
+                }
+            }
         }
     }
 }
