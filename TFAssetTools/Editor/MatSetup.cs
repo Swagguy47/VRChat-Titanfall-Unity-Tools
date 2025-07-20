@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
 
 //This is a modified version of my simplified Halo 2 Anniversary Material Converter tool for Titanfall usage
 namespace TFAssetTools.Editor

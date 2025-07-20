@@ -1,4 +1,4 @@
-﻿Shader "TITANFALL/Transparent/Titanfall 2 Standard"
+﻿Shader "TITANFALL/Legacy/Transparent/Titanfall 2 Standard"
 {
     Properties
     {
